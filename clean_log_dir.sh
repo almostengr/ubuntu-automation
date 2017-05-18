@@ -12,29 +12,27 @@
 # run as ID should be a member of the syslog group. 
 ################################################################################
 
-function main {
 # FILES OLDER THAN THIS NUMBER OF DAYS WILL BE REMOVED 
 DELAY=30
 
+function main {
+	# display the disk usage before cleanup
+	/bin/df -h . 
 
-date 
+	# list all the files before removing
+	/usr/bin/find /var/log/* -type f -mtime +${DELAY} -exec ls -la {} \;
 
-df -h . 
+	# remove the files 
+	/usr/bin/find /var/log/* -type f -mtime +${DELAY} -exec rm {} \; 
+	
+	# display the disk usage after cleanup
+	/bin/df -h . 
 
-/usr/bin/find /var/log/* -mtime +${DELAY} -exec rm {} \; 
+}
 
-df -h . 
+/bin/date
 
-date
+main $*
 
-} # END FUNCTION 
-
-main
-
-
-
-################################################################################
-# VERSION HISTORY
-# 2016/05-29 - Initial Version.
-################################################################################
+/bin/date
 
