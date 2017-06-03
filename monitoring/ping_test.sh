@@ -19,13 +19,13 @@ toEmail=""
 ticketAPI=""
 
 # log start time of script.
-date
+/bin/date
 
 # If arg one is not passed, then throw error. Otherwise perform ping. 
 if [ "${1}" != "" ]
 then 
 	echo "Pinging host ${1}..."
-	ping -c 4 ${1} | grep "0% packet loss"
+	ping -c 2 ${1} | grep "0% packet loss"
 
 	# If ping fails, then send email and create ticket via JSON API.
 	if [ $? -eq 0 ]
@@ -37,10 +37,10 @@ then
 		echo "Ping test failed for ${1}."
 		
 		# sending email
-		mailx -s "Ping test failed for ${1}" ${toEmail}
+		# mailx -s "Ping test failed for ${1}" ${toEmail}
 		
 		# Send JSON request.
-		${ticketAPI}
+		# ${ticketAPI}
 	fi
 else
 	# If no value for param 1 has been passed, then display help info.
@@ -51,5 +51,5 @@ else
 fi
 
 # log end time of script 
-date 
+/bin/date 
 
