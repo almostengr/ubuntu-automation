@@ -14,7 +14,7 @@
 # to the script-wide variables.
 ################################################################################
 
-date 
+/bin/date 
 
 # Script Variables
 toEmail=""
@@ -35,4 +35,5 @@ else
 	echo "All VMS are online."
 fi
 
-date
+/bin/date
+
