@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 ################################################################################
 # AUTHOR: Kenny Robinson, Bit Second (bitsecondal@gmail.com)
@@ -16,7 +16,7 @@
 ################################################################################
 
 # Log the date
-date
+/bin/date
 
 ## SCRIPT MAIN ##
 
@@ -35,16 +35,16 @@ else
 
 	echo "Attempting to connect to ${loginId}"
 
-	ssh -q ${loginId} exit
+	/usr/bin/ssh -q ${loginId} exit
 	if [ $? -ne 0 ]
 	then
 		echo "Unable to connect via SSH as ${1}. Sending notifications."
 
 		# Send email notification if the server down is internal.
-		mailx -s "Could not connect to ${loginId}" -t "${toEmail}" < /dev/null			
+		# mailx -s "Could not connect to ${loginId}" -t "${toEmail}" < /dev/null			
 			
 		# Create ticket for ticketing system.
-		${ticketAPI}
+		# ${ticketAPI}
 
 	else
 		echo "Connection test successful for ${loginId}"
@@ -54,4 +54,5 @@ fi
 # end if string not empty
 
 # Log script end time.
-date
+/bin/date
+
