@@ -1,33 +1,46 @@
 #!/bin/bash
 
+###############################################################################
+# Script: hardening_script.sh
+# Author: Kenny Robinson, Bit Second Tech
+# Description: To automatically install additional software on Ubuntu machines 
+# so that manually running each of the commands does not have to be performed.
+###############################################################################
+
+if [ "$(id -u)" == "0" ]; then
 set -x
 
-openssl version -v
+	openssl version -v
 
-openssl version -b
+	openssl version -b
 
-apt-get update
+	apt-get update
 
-apt-get upgrade openssl libssl-dev
+	apt-get upgrade openssl libssl-dev
 
-apt-cache policy openssl libssl-dev
+	apt-cache policy openssl libssl-dev
 
-openssl version -b
+	openssl version -b
 
-ufw allow from 192.168.1.0/24 to any port 22
+	# ufw enable
 
-ufw allow from 192.168.1.0/24 to any port 10000
+	apt-get install fail2ban -y
 
-ufw enable
+	apt-get upgrade -y
 
-echo 'ALERT - ACCESS GRANTED on:' `date` `who` | mail -s "ALERT - ACCESS GRANTED from `who | awk '{print $6}'`" tharam04@yahoo.com >> /root/.bash_profile
+	apt-get dist-upgrade -y
 
-apt-get install fail2ban -y
+	apt-get autoremove -y
 
-apt-get upgrade -y
+	set +x
 
-apt-get dist-upgrade -y
+	echo "Setup done. Rebooting..."
 
-apt-get autoremove -y
+	sleep 5
 
-set +x
+	/sbin/reboot
+
+else
+	echo "ERROR: Must be root to run script. Re-run script using"
+	echo "sudo bash hardening_script.sh"
+fi
