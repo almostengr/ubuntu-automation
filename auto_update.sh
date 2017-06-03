@@ -4,16 +4,17 @@
 # Script: auto_update.sh
 # Description: Script to automatically perform
 # functions on ubuntu based servers.
-# Author: Bit Second
+# Author: Kenny Robinson, Bit Second
 # Date: 2016-02-28
 #
 # Version History
 # 2016-02-28 - Initial version.
 # 2017-05-18 - Updated to use full file path commands intead of only script names.
+# 2017-06-03 - Updated if condition to see if script is being ran as root.
 ################################################################################
 
 # MAKE SURE THAT THE ROOT USER IS RUNNING THE SCRIPT.
-if [ "$(id -u)" = "0" ]; then
+if [ "$(id -u)" == "0" ]; then
 	/usr/bin/apt-get autoremove -y
 
 	/usr/bin/apt-get update
