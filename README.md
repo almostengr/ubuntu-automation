@@ -32,7 +32,8 @@ will be automatically created and removed each time the script runs.
 ## Running Scripts
 To run the script, just call the script via the command line. If a script requires
 an argument to be passed, the script will display the values to be passed. Scripts 
-can be called at scheduled times using crontab or other scheduling tool.
+can be called at scheduled times using crontab or other scheduling tool. Scripts 
+were designed to be ran using the Bash shell.
 
 ----
 
