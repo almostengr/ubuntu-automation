@@ -25,6 +25,10 @@ set -x
 	# ufw enable
 
 	apt-get install fail2ban -y
+		
+	apt-get install git -y
+	
+	apt-get install etckeeper -y
 
 	apt-get upgrade -y
 
