@@ -15,7 +15,9 @@
 
 # MAKE SURE THAT THE ROOT USER IS RUNNING THE SCRIPT.
 if [ "$(id -u)" == "0" ]; then
-	/usr/bin/apt-get autoremove -y
+	/usr/bin/apt-get autoremove --purge -y
+
+	/usr/bin/apt-get clean
 
 	/usr/bin/apt-get update
 
