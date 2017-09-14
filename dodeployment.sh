@@ -28,7 +28,8 @@ function main() {
 
 		log_message "Done checking out master"
 		log_message "Verifiying on master branch"
-
+	
+		# get the output and parse the line
 		ISMASTER=$(echo ${OUTPUTCHECKOUT} | grep "On branch master" | wc -1)
 
 		if [ ${ROWCOUNT} -eq 1 ]; then
