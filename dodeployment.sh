@@ -2,6 +2,8 @@
 
 DEBUG=0
 
+LOGFILE=${HOME}/gitdeploy.$(date +%Y%m%d.%H%M%S).log
+
 function log_message () {
 # log message to the log file
 
