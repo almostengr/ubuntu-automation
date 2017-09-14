@@ -32,7 +32,7 @@ function main() {
 		log_message "Verifiying on master branch"
 	
 		# get the output and parse the line
-		ROWCOUNT=$(echo ${OUTPUTCHECKOUT} | grep "On branch master" | wc -1)
+		ROWCOUNT=$(echo ${OUTPUTCHECKOUT} | grep "On branch master" | wc -l)
 
 		if [ ${ROWCOUNT} -eq 1 ]; then
 		# check that the row exists in the output
