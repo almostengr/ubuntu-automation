@@ -9,14 +9,6 @@ function log_message () {
 	echo "$(date) | $*" >> ${LOGFILE}
 }
 
-function debug_message() {
-# display message
-
-	if [ ${DEBUG} -eq 1 ]; then
-		log_message "DEBUG: $*"
-	fi
-}
-
 function main() {
 # main function and logic
 
