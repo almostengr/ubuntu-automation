@@ -1,18 +1,27 @@
 #!/bin/bash
 
-DEBUG=1
+################################################################################
+# Filename: dodeployment.sh
+# Description: Used to deploy master branch of code to server. Can be used with
+# cron job to automatic recurring deployments.
+# Author: Kenny Robinson
+# Date: 2017-09-13
+# Usage: dodeployment.sh <directory>
+################################################################################
 
-LOGFILE=${HOME}/gitdeploy.$(date +%Y%m%d.%H%M%S).log
+DEBUG=0
+# LOGFILE=${HOME}/gitdeploy.$(date +%Y%m%d.%H%M%S).log
 
 function log_message () {
 # log message to the log file
 
 	echo $*
-	echo "$(date) | $*" >> ${LOGFILE}
+	# echo "$(date) | $*" >> ${LOGFILE}
 }
 
 function debug_message () {
 # displays additional messages when needed
+
 	if [ ${DEBUG} -eq 1 ]; then
 		log_message "DEBUG $*"
 	fi
@@ -65,5 +74,9 @@ function main() {
 	fi
 }
 
+echo $(date)
+
 main $*
+
+echo $(date)
 
