@@ -22,13 +22,11 @@ function main() {
 	# check if the current directory is the code directory
 
 		log_message "Done changing directory" 
-
 		log_message "Checking out master"
 
 		OUTPUTCHECKOUT=$(git checkout master)
 
 		log_message "Done checking out master"
-
 		log_message "Verifiying on master branch"
 
 		ISMASTER=$(echo ${OUTPUTCHECKOUT} | grep "On branch master" | wc -1)
@@ -37,7 +35,6 @@ function main() {
 		# check that the row exists in the output
 	
 			log_message "Done verifying on master branch"
-
 			log_message "Pulling master branch"
 
 			git pull origin master
