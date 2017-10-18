@@ -8,13 +8,15 @@
 
 # MAKE SURE THAT THE ROOT USER IS RUNNING THE SCRIPT.
 if [ "$(id -u)" == "0" ]; then
+	/bin/date
+
 	echo "Updating repositories"
 
 	/usr/bin/apt-get update
 
 	echo "Installing packages"
 
-	/usr/bin/apt-get install -y apache2 php5 mysql-client mysql-server php5-mysql libapache2-mod-php5 php5-mcrypt
+	/usr/bin/apt-get install -y apache2 mysql-server php5-mysql libapache2-mod-php5 php5-mcrypt
 
 	# restart apache after install 
 	/usr/sbin/service apache2 restart
