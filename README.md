@@ -4,11 +4,14 @@
 Scripts that can be used to automate repetitive tasks when setting up servers, 
 desktops, performing periodic maintenance, or performing automation tasks. 
 
+Some of the scripts here are used in the Almost Engineer YouTube channel. Visit 
+https://www.youtube.com/channel/UC4HCouBLtXD1j1U_17aBqig to the the scripts 
+being used.
 ----
 
 ## System Requirements
-All scripts have been tested and are confirmed to work on Ubuntu 14.04 LTS
-Server Edition. Running these scripts on any other OS may result in unexpected
+All scripts have been tested and are confirmed to work on the Ubuntu version
+mentioned in the script.. Running these scripts on any other OS may result in unexpected
 results as the code has not been tested on these systems.
 
 ### VirtualBox
@@ -38,7 +41,7 @@ were designed to be ran using the Bash shell.
 ----
 
 ## Contact Information 
-Kenny Robinson, Bit Second Tech (www.bitsecondtech.com)
+Kenny Robinson, Almost Engineer (@almostengr)
 
 ----
 
