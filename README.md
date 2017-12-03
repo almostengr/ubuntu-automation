@@ -12,7 +12,7 @@ being used.
 
 ## System Requirements
 All scripts have been tested and are confirmed to work on the Ubuntu version
-mentioned in the script.. Running these scripts on any other OS may result in unexpected
+mentioned in the script. Running these scripts on any other OS may result in unexpected
 results as the code has not been tested on these systems.
 
 ### VirtualBox
@@ -42,7 +42,7 @@ were designed to be ran using the Bash shell.
 ----
 
 ## Contact Information 
-Kenny Robinson, Almost Engineer (@almostengr)
+Kenny Robinson, @almostengr (Twitter, Instagram)
 
 ----
 
@@ -53,11 +53,5 @@ that the issue can be replicated.
 ---- 
 
 ## License
-This project is licensed under the MIT License. See LICENCE for more details.
-
-----
-
-## Road Map
-Future enhancements and updates to the scripts will be tracked using the Issue 
-queue. Any special requests can be submitted.
+This project is licensed under the MIT License. See LICENSE for more details.
 
