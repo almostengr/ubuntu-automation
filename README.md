@@ -2,7 +2,8 @@
 Automatically checkout the master branch of the repository.
 
 ## Purpose 
-To automatically pull the lastest commit of the master branch. Can be used as a cron job to schedule continuous deployments or integrations.
+To automatically pull the lastest commit of the master branch from origin. Can be used 
+as a cron job to schedule continuous deployments or integrations.
 
 ## Setup 
 1) Copy the latest master branch to the server. 
@@ -10,7 +11,7 @@ To automatically pull the lastest commit of the master branch. Can be used as a 
 
 ## Usage 
 ```bash 
-dodeployment.sh codedir
+/path/to/folder/dodeployment.sh codedir
 ``` 
 
 Replace *codedir* with the directory that the code exists in.
@@ -19,5 +20,6 @@ Replace *codedir* with the directory that the code exists in.
 See LICENSE for more details
 
 ## Features / Bugs
-Features and bugs will be tracked using the issue queue on the repository. Visit https://github.com/bitsecondal/gitdeploy/issues 
-for more information.
+Features and bugs will be tracked using the issue queue on the repository. 
+Visit https://github.com/bitsecondal/gitdeploy for more information.
+
