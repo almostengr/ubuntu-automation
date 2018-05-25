@@ -16,7 +16,6 @@ function log_message () {
 # log message to the log file
 
 	echo $*
-	# echo "$(date) | $*" >> ${LOGFILE}
 }
 
 function debug_message () {
@@ -39,7 +38,12 @@ function main() {
 	if [ "$(pwd)" == "${CODEDIR}" ]; then
 	# check if the current directory is the code directory
 
-		log_message "Done changing directory" 
+		log_message "Done changing directory"
+		log_message "Fetching latest commits from repo" 
+
+		git fetch --all 
+
+		log_message "Done fetching latest commits from repo"
 		log_message "Checking out master"
 
 		git checkout master
@@ -62,7 +66,7 @@ function main() {
 		# check that the row exists in the output
 			log_message "Pulling master branch"
 
-			git pull origin master
+			git pull origin master --commit
 
 			log_message "Done pulling master branch"
 		else
@@ -74,9 +78,9 @@ function main() {
 	fi
 }
 
-echo $(date)
+log_message $(date)
 
 main $*
 
-echo $(date)
+log_message $(date)
 
