@@ -11,10 +11,10 @@ as a cron job to schedule continuous deployments or integrations.
 
 ## Usage 
 ```bash 
-/path/to/folder/dodeployment.sh codedir
+/path/to/folder/dodeployment.sh <codedir>
 ``` 
 
-Replace *codedir* with the directory that the code exists in.
+Replace *<codedir>* with the directory that the code exists in.
 
 ## License 
 See LICENSE for more details
@@ -22,4 +22,7 @@ See LICENSE for more details
 ## Features / Bugs
 Features and bugs will be tracked using the issue queue on the repository. 
 Visit https://github.com/bitsecondal/gitdeploy for more information.
+
+## Author
+Kenny Robinson, @almostengr
 
