@@ -1,18 +1,12 @@
 #!/bin/bash
 
 ################################################################################
-# AUTHOR: Kenny Robinson, Bit Second (bitsecondal@gmail.com)
-# COPYRIGHT: Bit Second Tech 2016
-# WEB: www.bitsecondtech.com
+# AUTHOR: Kenny Robinson, @almostengr
 # DATE CREATED: 2016-05-09
 # USAGE: ssh_test.sh <user@hostname>
 # DESCRIPTION: Check to see if servers are online and listening on SSH. If the
 # server is not listening, then system will generate ticket and send email
 # notification to those defined in the bashrc configuration.
-# VERSION HISTORY
-# 2016/02/06 - Initial version.
-# 2016/05/09 - Added script to linuxmonitoring repo. Updated usage information
-# in the header. 
 ################################################################################
 
 toEmail=""
