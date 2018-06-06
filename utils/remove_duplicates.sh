@@ -7,8 +7,6 @@
 # in the diretory that you wish to clean BEFORE running this script.
 ###############################################################################
 
-date
-
 echo "Checking disk space"
 
 # check disk space before cleanup
@@ -43,4 +41,3 @@ du -sh "$(pwd)"
 
 echo "Done checking disk space"
 
-date
