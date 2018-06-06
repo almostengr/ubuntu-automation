@@ -1,17 +1,11 @@
 #!/bin/bash
 
 ################################################################################
-# AUTHOR: Kenny Robinson, Bit Second (bitsecondal@gmail.com)
-# COPYRIGHT: Bit Second Tech 2016
-# WEB: www.bitsecondtech.com
+# AUTHOR: Kenny Robinson, @almostengr
 # DATE CREATED: 2016-02-21
 # USAGE: vms_online.sh 
 # DESCRIPTION: Check to see if all Virtual Machines are online. If not, then 
 # an alert and email notification should be issued. 
-# VERSION HISTORY
-# 2016-02-21 - Initial version.
-# 2015-05-09 - Added code to monitoring repository. Added additional comments 
-# to the script-wide variables.
 ################################################################################
 
 /bin/date 
