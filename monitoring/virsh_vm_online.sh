@@ -8,9 +8,6 @@
 # an alert and email notification should be issued. 
 ################################################################################
 
-/bin/date 
-
-# Script Variables
 toEmail=""
 ticketAPI=""
 
@@ -28,6 +25,4 @@ else
 	# All VMs are running. Display message stating so. 
 	echo "All VMS are online."
 fi
-
-/bin/date
 
