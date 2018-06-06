@@ -16,12 +16,14 @@ if [ "$(id -u)" == "0" ]; then
 
 	echo "Installing updates"
 	/usr/bin/apt-get upgrade -y
-
+	
+	echo "Running upgrade script"
 	/usr/bin/do-release-upgrade
 
 	# IF REBOOT FILE HAS BEEN CREATED, THEN DO REBOOT
 	if [ -f /var/run/reboot-required ]; then
 		echo "Reboot is required. Rebooting"
+		sleep 5
 		/sbin/reboot
 	fi
 else
