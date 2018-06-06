@@ -1,9 +1,7 @@
 #!/bin/bash
 
 ################################################################################
-# AUTHOR: Kenny Robinson, Bit Second (bitsecondal@gmail.com)
-# COPYRIGHT: Bit Second Tech 2016
-# WEB: www.bitsecondtech.com
+# AUTHOR: Kenny Robinson, @almostengr
 # DATE CREATED: 2016-05-09
 # USAGE: ping_test.sh <hostname> 
 # DESCRIPTION: To ping another host to confirm whether it is responding. To 
@@ -11,8 +9,6 @@
 # variable needs to be popluated. If using a ticketing system, the "ticketAPI" 
 # variable should be popluated with the command or script that should be ran 
 # to automatically generate a ticket. 
-# VERSION HISTORY
-# 2015-05-09 - Initial version.
 ################################################################################
 
 toEmail=""
