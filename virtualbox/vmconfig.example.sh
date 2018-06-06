@@ -19,7 +19,6 @@ VMSRUNNING=/var/tmp/vmsrunning.txt
 VMSALL=/var/tmp/vmsall.txt
 VMSDIFF=/var/tmp/vmsdiff.txt
 
-
 ################################################################################
 ################################################################################
 ##### DO NOT EDIT BELOW THIS LINE - DO NOT EDIT BELOW THIS LINE ################
@@ -29,3 +28,4 @@ export VBOXBIN
 export VMSRUNNING
 export VMSALL
 export VMSDIFF
+
