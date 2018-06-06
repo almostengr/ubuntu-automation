@@ -15,11 +15,6 @@
 # in the header. 
 ################################################################################
 
-# Log the date
-/bin/date
-
-## SCRIPT MAIN ##
-
 toEmail=""
 ticketAPI=""
 
@@ -52,7 +47,4 @@ else
 
 fi
 # end if string not empty
-
-# Log script end time.
-/bin/date
 
