@@ -28,17 +28,9 @@ else
 	if [ $? -ne 0 ]
 	then
 		echo "Unable to connect via SSH as ${1}. Sending notifications."
-
-		# Send email notification if the server down is internal.
-		# mailx -s "Could not connect to ${loginId}" -t "${toEmail}" < /dev/null			
-			
-		# Create ticket for ticketing system.
-		# ${ticketAPI}
-
 	else
 		echo "Connection test successful for ${loginId}"
 	fi
-
 fi
 # end if string not empty
 
