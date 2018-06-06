@@ -28,12 +28,6 @@ then
 	else
 		# Ping test failed. 
 		echo "Ping test failed for ${1}."
-		
-		# sending email
-		# mailx -s "Ping test failed for ${1}" ${toEmail}
-		
-		# Send JSON request.
-		# ${ticketAPI}
 	fi
 else
 	# If no value for param 1 has been passed, then display help info.
