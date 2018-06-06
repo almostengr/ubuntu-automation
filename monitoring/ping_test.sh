@@ -14,9 +14,6 @@
 toEmail=""
 ticketAPI=""
 
-# log start time of script.
-/bin/date
-
 # If arg one is not passed, then throw error. Otherwise perform ping. 
 if [ "${1}" != "" ]
 then 
@@ -45,7 +42,4 @@ else
 	echo "Usage:"
 	echo "ping <hostname>"
 fi
-
-# log end time of script 
-/bin/date 
 
