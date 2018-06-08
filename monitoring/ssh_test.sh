@@ -13,7 +13,7 @@ toEmail=""
 ticketAPI=""
 
 if [ -z "$1" ]; then
-	# Display the help information if the host name is not provided. 
+	# Display the help information if the host name is not provided.
 	echo "ERROR: Login name not provided."
 	echo ""
 	echo "Usage: ssh_test.sh <user@hostname>"
@@ -32,5 +32,4 @@ else
 		echo "Connection test successful for ${loginId}"
 	fi
 fi
-# end if string not empty
 
