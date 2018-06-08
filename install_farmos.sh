@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Video Title: Install FarmOS using Drush | Almost Engineered Tech, Ep 8 
+# Video Title: Install FarmOS using Drush
 # Author: Kenny Robinson, @almostengr
 # Video: https://youtu.be/Cxawn2l5Cdk
 # OS: Ubuntu 14.04 LTS
@@ -13,7 +13,7 @@ if [ "$(id -u)" == "0" ]; then
 	sudo apt-get install drush -y
 
 	cd /var/www
-	
+
 	# use drush to download the files
 	drush dl farm
 
