@@ -7,10 +7,7 @@
 # Description: Export all the databases to a file.
 ####################################################################
 
-
-SQLFILENAME=
-hostname=""
-port="3306"
+source ./config.sh
 
 if [ "${hostname}" == "" ]; then
 	hostname="localhost"
@@ -20,6 +17,5 @@ if [ "${port}" == "" ]; then
 	port="3306"
 fi
 
-/usr/bin/mysqldump --all-databases -u "${username}" -p"${password}" -h "${hostname}"
-
+/usr/bin/mysqldump --all-databases -u "${USERNAME}" -p"${PASSWORD}" -h "${HOSTNAME}" > ${SQLFILE}
 
