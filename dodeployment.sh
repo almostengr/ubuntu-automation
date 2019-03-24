@@ -1,0 +1,86 @@
+#!/bin/bash
+
+################################################################################
+# Filename: dodeployment.sh
+# Description: Used to deploy master branch of code to server. Can be used with
+# cron job to automatic recurring deployments.
+# Author: Kenny Robinson
+# Date: 2017-09-13
+# Usage: dodeployment.sh <directory>
+################################################################################
+
+DEBUG=0
+# LOGFILE=${HOME}/gitdeploy.$(date +%Y%m%d.%H%M%S).log
+
+function log_message () {
+# log message to the log file
+
+	echo $*
+}
+
+function debug_message () {
+# displays additional messages when needed
+
+	if [ ${DEBUG} -eq 1 ]; then
+		log_message "DEBUG $*"
+	fi
+}
+
+function main() {
+# main function and logic
+
+	CODEDIR="${1}"
+
+	log_message "Changing directory"
+
+	cd ${CODEDIR}
+	
+	if [ "$(pwd)" == "${CODEDIR}" ]; then
+	# check if the current directory is the code directory
+
+		log_message "Done changing directory"
+		log_message "Fetching latest commits from repo" 
+
+		git fetch --all 
+
+		log_message "Done fetching latest commits from repo"
+		log_message "Checking out master"
+
+		git checkout master
+
+		log_message "Done checking out master"
+		log_message "Verifiying on master branch"
+
+		OUTPUTSTATUS=$(git status)
+
+		debug_message "OUTPUTSTATUS=${OUTPUTSTATUS}"
+	
+		# get the output and parse the line
+		ROWCOUNT=$(echo ${OUTPUTSTATUS} | grep "On branch master" | wc -l)
+
+		debug_message "Row Count: ${ROWCOUNT}"
+
+		log_message "Done verifying on master branch"
+	
+		if [ ${ROWCOUNT} -eq 1 ]; then
+		# check that the row exists in the output
+			log_message "Pulling master branch"
+
+			git pull origin master --commit
+
+			log_message "Done pulling master branch"
+		else
+			log_message "Could not checkout master branch"
+			log_message "${OUTPUTSTATUS}"
+		fi
+	else
+		log_message "Could not change into directory."
+	fi
+}
+
+log_message $(date)
+
+main $*
+
+log_message $(date)
+

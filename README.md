@@ -39,10 +39,12 @@ an argument to be passed, the script will display the values to be passed. Scrip
 can be called at scheduled times using crontab or other scheduling tool. Scripts 
 were designed to be ran using the Bash shell.
 
-----
+### Running gitdeploy Usage
+```bash
+/path/to/folder/dodeployment.sh <codedir>
+```
 
-## Contact Information 
-Kenny Robinson, @almostengr (Twitter, Instagram)
+Replace *<codedir>* with the directory that the code exists in.
 
 ----
 
@@ -52,6 +54,11 @@ that the issue can be replicated.
 
 ---- 
 
-## License
-This project is licensed under the MIT License. See LICENSE for more details.
+## License 
+See LICENSE for more details
+
+----
+
+## Author
+Kenny Robinson, @almostengr
 
