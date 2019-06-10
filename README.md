@@ -19,7 +19,8 @@ results as the code has not been tested on these systems.
 ### VirtualBox
 Any Unix or Linux based system with Oracle VirutalBox installed. Code has been 
 tested and confirmed to be working with Ubuntu 14.04 LTS using Oracle 
-VirtualBox 5.
+VirtualBox 5. Scripts may work on future editions of Ubuntu, but have not been 
+tested on these versions.
 
 ----
 
