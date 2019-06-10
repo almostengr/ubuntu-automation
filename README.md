@@ -4,9 +4,10 @@
 Scripts that can be used to automate repetitive tasks when setting up servers, 
 desktops, performing periodic maintenance, or performing automation tasks. 
 
-Some of the scripts here are used in the Almost Engineer YouTube channel. Visit 
-https://www.youtube.com/channel/UC4HCouBLtXD1j1U_17aBqig to the the scripts 
-being used.
+Some of the scripts here are used in the Almost Engineer YouTube channel. An 
+Ubuntu video playlist has been created that demonstrates some of the scripts 
+that are part of this repository.  You can watch the playlist by visiting 
+[https://www.youtube.com/playlist?list=PLaAJ0fv0d9WPLAng19RpS1Q3jjMoG6eno](https://www.youtube.com/playlist?list=PLaAJ0fv0d9WPLAng19RpS1Q3jjMoG6eno).
 
 ----
 
@@ -61,4 +62,4 @@ See LICENSE for more details
 
 ## Author
 Kenny Robinson, @almostengr
-
+http://thealmostengineer.com
