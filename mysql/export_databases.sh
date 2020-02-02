@@ -7,7 +7,8 @@
 # Description: Export all the databases to a file.
 ####################################################################
 
-source ./config.sh
+USERNAME="${1}"
+PASSWORD="${2}"
 
 if [ "${hostname}" == "" ]; then
 	hostname="localhost"
@@ -17,5 +18,15 @@ if [ "${port}" == "" ]; then
 	port="3306"
 fi
 
-/usr/bin/mysqldump --all-databases -u "${USERNAME}" -p"${PASSWORD}" -h "${HOSTNAME}" > ${SQLFILE}
+if [ "${USERNAME}" == "" ]; then
+	echo "Username not provided"
+	exit 1
+fi
+
+if [ "${PASSWORD"} == "" ]; then
+	echo "Password not provided"
+	echo 1
+fi
+
+/usr/bin/mysqldump --all-databases -u "${USERNAME}" -p"${PASSWORD}" -h "${HOSTNAME}" > ./databaseexport.sql
 
