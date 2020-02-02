@@ -20,12 +20,14 @@ fi
 
 if [ "${USERNAME}" == "" ]; then
 	echo "Username not provided"
+	echo "export_databases.sh USERNAME PASSWORD"
 	exit 1
 fi
 
 if [ "${PASSWORD"} == "" ]; then
 	echo "Password not provided"
-	echo 1
+	echo "export_databases.sh USERNAME PASSWORD"
+	exit 1
 fi
 
 /usr/bin/mysqldump --all-databases -u "${USERNAME}" -p"${PASSWORD}" -h "${HOSTNAME}" > ./databaseexport.sql
