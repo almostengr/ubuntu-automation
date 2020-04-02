@@ -21,8 +21,6 @@ if [ "$(id -u)" == "0" ]; then
 	# IF REBOOT FILE HAS BEEN CREATED, THEN DO REBOOT
 	if [ -f /var/run/reboot-required ]; then
 		/bin/echo "$(date) Reboot is required. Rebooting"
-		/bin/sleep 5
-		/sbin/reboot
 	fi
 else
 	# THROW ERROR IF NOT RUNNING AS ROOT
