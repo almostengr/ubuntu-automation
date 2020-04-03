@@ -12,7 +12,7 @@ if [ "$(id -u)" == "0" ]; then
 	/usr/bin/apt-get update
 
 	/bin/echo "$(date) Installing packages"
-	/usr/bin/apt-get install -y apache2 mysql-server php5-mysql libapache2-mod-php5 php5-mcrypt
+	/usr/bin/apt-get install -y apache2 mysql-server php7-mysql libapache2-mod-php7 php7-mcrypt
 	
 	# restart apache after install 
 	/bin/echo "$(date) Restarting apache"
