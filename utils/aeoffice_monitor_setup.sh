@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# steps were taken from https://askubuntu.com/questions/493165/ubuntu-14-04-unknown-display-nvidia-graphics
+# and placed into a script
+
 PATH=/usr/bin/:${PATH}
 OLD_IFS=$IFS
 
