@@ -12,7 +12,7 @@ if [ "$(id -u)" == "0" ]; then
 	/usr/bin/apt-get update
 
 	/bin/echo "$(date) Installing packages"
-	/usr/bin/apt-get install -y apache2 mysql-server php5-mysql libapache2-mod-php5 php5-mcrypt
+	/usr/bin/apt-get install -y apache2 mysql-server php7-mysql libapache2-mod-php7 php7-mcrypt
 	
 	# restart apache after install 
 	/bin/echo "$(date) Restarting apache"
@@ -21,8 +21,6 @@ if [ "$(id -u)" == "0" ]; then
 	# IF REBOOT FILE HAS BEEN CREATED, THEN DO REBOOT
 	if [ -f /var/run/reboot-required ]; then
 		/bin/echo "$(date) Reboot is required. Rebooting"
-		/bin/sleep 5
-		/sbin/reboot
 	fi
 else
 	# THROW ERROR IF NOT RUNNING AS ROOT

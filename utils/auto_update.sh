@@ -9,23 +9,21 @@
 
 # MAKE SURE THAT THE ROOT USER IS RUNNING THE SCRIPT.
 if [ "$(id -u)" == "0" ]; then
-	echo "$(date) Removing old software"
+	/bin/echo "$(date) Removing old software"
 	/usr/bin/apt-get autoremove --purge -y
 
-	echo "$(date) Cleaning packages"
+	/bin/echo "$(date) Cleaning packages"
 	/usr/bin/apt-get clean
 
-	echo "$(date) Updating repositories"
+	/bin/echo "$(date) Updating repositories"
 	/usr/bin/apt-get update
 
-	echo "$(date) Installing updates"
+	/bin/echo "$(date) Installing updates"
 	/usr/bin/apt-get upgrade -y
 
 	# IF REBOOT FILE HAS BEEN CREATED, THEN DO REBOOT
 	if [ -f /var/run/reboot-required ]; then
-		echo "$(date) Reboot is required. Rebooting"
-		sleep 5
-		/sbin/reboot
+		/bin/echo "$(date) Reboot is required"
 	fi
 else
 	# THROW ERROR IF NOT RUNNING AS ROOT
