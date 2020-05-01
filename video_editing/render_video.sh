@@ -1,32 +1,61 @@
 #!/bin/bash
 
-## HEADER WITH DETAILS ABOUT THE SCRIPT 
+## DESCRIPTION: This script batch processes project videos that have 
+## been created with Kdenlive. This script is done in a data warehousing 
+## fashion by staging, processing, and archiving the files.
+## AUTHOR: Kenny Robinson @almostengr 
+## DATE: 2020-04-28
+## USAGE: render_video.sh <config>
 
 /bin/date
 
 MELTBIN=/usr/bin/melt
 FFMPEGBIN=/usr/bin/ffmpeg
 PROCESSFILENAME=/tmp/render.tmp
+HOSTNAME=$(/bin/hostname)
 
 function clean_render_directory {
-    rm -rf ${WORKINGDIR}
+    cd ${WORKINGDIR}
+    rm -rf *
+}
+
+function log_message {
+    /bin/date ${1}
+}
+
+function create_directory {
+    if [[ ! -f ${1} ]]; then
+        log_message "Creating directory ${1}"
+        mkdir ${1}
+    fi
 }
 
 # determine the type of video being rendered
-if [[ "${1}" == "almostengineer" ]]; then
-    echo "Using almostengineer values"
-    INCOMINGDIR=/mnt/ramfiles/renderserver/almostengineer/incoming
-    YOUTUBEDIR=/mnt/ramfiles/renderserver/almostengineer/uploadready
-    ARCHIVEDIR=/mnt/ramfiles/renderserver/almostengineer/archive
-    WORKINGDIR=/mnt/ramfiles/renderserver/almostengineer/working
+
+if [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "media" ]]; then
+    log_message "Using almostengineer values"
+    INCOMINGDIR=/mnt/ramfiles/youtubechannel/almostengineer/incoming
+    YOUTUBEDIR=/mnt/ramfiles/youtubechannel/almostengineer/uploadready
+    ARCHIVEDIR=/mnt/ramfiles/youtubechannel/almostengineer/archive
+    WORKINGDIR=/mnt/ramfiles/renderyoutubechannelserver/almostengineer/working
     DOTIMELAPSE=no
-elif [[ "${1}" == "dashcam" ]]; then
-    echo "Using dashcam values"
-    INCOMINGDIR=/mnt/ramfiles/renderserver/dashcam/incoming
-    YOUTUBEDIR=/mnt/ramfiles/renderserver/dashcam/uploadready
-    ARCHIVEDIR=/mnt/ramfiles/renderserver/dashcam/archive
-    WORKINGDIR=/mnt/ramfiles/renderserver/dashcam/working
+
+elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
+    log_message "Using dashcam values"
+    INCOMINGDIR=/mnt/ramfiles/youtubechannel/dashcam/incoming
+    YOUTUBEDIR=/mnt/ramfiles/youtubechannel/dashcam/uploadready
+    ARCHIVEDIR=/mnt/ramfiles/youtubechannel/dashcam/archive
+    WORKINGDIR=/mnt/ramfiles/youtubechannel/dashcam/working
     DOTIMELAPSE=yes
+
+elif [[ "${HOSTNAME}" == "aeoffice" ]]; then
+    log_message "Using development values"
+    INCOMINGDIR=/home/almostengineer/Downloads/renderserver/incoming
+    YOUTUBEDIR=/home/almostengineer/Downloads /renderserver/youtube
+    ARCHIVEDIR=/home/almostengineer/Downloads/renderserver/archive
+    WORKINGDIR=/home/almostengineer/Downloads/renderserver/working
+    DOTIMELAPSE=no
+
 else
     echo "Invalid value for arg 1 was passed in"
     echo "Usage: render_video.sh <channel>"
@@ -38,42 +67,45 @@ fi
 
 if [ ! -f ${PROCESSFILENAME} ]; then
     touch ${PROCESSFILENAME}
-    echo "Started at $(date)" > ${PROCESSFILENAME}
+    log_message "Started at $(date)" > ${PROCESSFILENAME}
 else
-    echo "Video rendering is already in progress"
+    log_message "Video rendering is already in progress"
     exit 3
 fi
 
-# loop through the files in the incoming directory
+# create directories if they do not exist
 
+create_directory ${WORKINGDIR}
+create_directory ${YOUTUBEDIR}
+create_directory ${ARCHIVEDIR}
+
+# change to the incoming file directory
 cd ${INCOMINGDIR}
 
+# loop through the files in the incoming directory
 for FILENAME in $(ls -l *.gz *.tar)
 do 
-    echo "Processing ${FILENAME}"
+    cd ${INCOMINGDIR}
+
+    log_message "Processing ${FILENAME}"
 
     # handle file if tarred and compressed
     if [[ "${FILENAME}" == *".gz" ]]; then
-        echo "Uncompressing ${FILENAME}"
+        log_message "Uncompressing ${FILENAME}"
         /bin/gunzip ${FILENAME}
 
         TARFILENAME=$(echo ${FILENAME} | sed -e 's/.gz//g')
         TARFILENAME="${INCOMINGDIR}/${TARFILENAME}"
     fi
 
-    # create output directory if it does not exist
-    if [ ! -f ${WORKINGDIR} ];
-        mkdir ${WORKINGDIR}
-    fi
-
     # untar the file to the working directory
-    echo "Untarring file ${TARFILENAME}"
+    log_message "Untarring file ${TARFILENAME}"
 
     /bin/tar -xf ${TARFILENAME} -C ${WORKINGDIR}
 
-    echo "Done uncompressing file ${TARFILENAME}"
+    log_message "Done uncompressing file ${TARFILENAME}"
 
-    # 
+    # change to the working directory
     cd ${WORKINGDIR}
 
     KDENLIVEFILE=$(ls -1 *kdenlive)
@@ -82,8 +114,8 @@ do
     FINALVIDEOFILENAME=${FINALVIDEOFILENAME}".mp4"
     FINALVIDEOFILENAME=${YOUTUBEDIR}"/${FINALVIDEOFILENAME}"
 
-    echo "Kdenlive file: "${KDENLIVEFILE}
-    echo "Video Output file: "${FINALVIDEOFILENAME}
+    log_message "Kdenlive file: "${KDENLIVEFILE}
+    log_message "Video Output file: "${FINALVIDEOFILENAME}
 
     # get resolution from kdenlive file
 
@@ -91,25 +123,27 @@ do
     RESOLUTION=echo ${RESOLUTION} | sed -e "s|<property name=\"kdenlive:docproperties.profile\">||g"
     RESOLUTION=echo ${RESOLUTION} | sed -e "s|</property>||g"
 
-    echo "Resolution: ${RESOLUTION}"
+    log_message "Resolution: ${RESOLUTION}"
 
-    echo "Rendering video: ${FINALVIDEOFILENAME}"
+    log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
     ${MELTBIN} -consumer -avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
         g=120 crf=23 ab=160k preset=faster threads=4 real_time=-1 -silent
 
-    echo "Done rendering video: ${FINALVIDEOFILENAME}"
+    log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
     if [[ "${DOTIMELAPSE}" == "yes" ]]; then
         # timelapse filename
-        TLVIDEOFILENAME=$( echo ${FINALVIDEOFILENAME} | sed -e "s|.mp4|timelapse.mp4|g")
+        # TLVIDEOFILENAME=$( echo ${FINALVIDEOFILENAME} | sed -e "s|.mp4|timelapse.mp4|g")
 
         # generate timelapse file
-        ${FFMPEGBIN} -i ${FINALVIDEOFILENAME} -vf setpts=0.25*PTS -an ${TLVIDEOFILENAME}
+        # ${FFMPEGBIN} -i ${FINALVIDEOFILENAME} -vf setpts=0.25*PTS -an ${TLVIDEOFILENAME}
+
+        # call to the timelapse script
+        /bin/bash "$(dirname \"${0}\")/timelapse.sh"
     fi
 
     # archive the project
-
     cd ${INCOMINGDIR}
 
     /bin/gzip ${TARFILENAME}
@@ -121,10 +155,10 @@ do
     ls -1 ${ARCHIVEDIR}
 
     clean_render_directory
-
 done
 
 # remove the rendering file once completed
+log_message "Processing completed"
 rm -f ${PROCESSFILENAME}
 
 /bin/date
