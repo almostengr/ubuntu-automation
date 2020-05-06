@@ -11,7 +11,6 @@
 
 MELTBIN=/usr/bin/melt
 FFMPEGBIN=/usr/bin/ffmpeg
-PROCESSFILENAME=/tmp/render.tmp
 HOSTNAME=$(/bin/hostname)
 
 function clean_render_directory {
@@ -20,7 +19,7 @@ function clean_render_directory {
 }
 
 function log_message {
-    /bin/date ${1}
+    echo "$(/bin/date) ${1}"
 }
 
 function create_directory {
@@ -38,7 +37,9 @@ if [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "media" ]]; then
     YOUTUBEDIR=/mnt/ramfiles/youtubechannel/almostengineer/uploadready
     ARCHIVEDIR=/mnt/ramfiles/youtubechannel/almostengineer/archive
     WORKINGDIR=/mnt/ramfiles/renderyoutubechannelserver/almostengineer/working
+    # PROCESSFILENAME=/tmp/almostengineer.tmp
     DOTIMELAPSE=no
+    TIMELAPSESPEED=0.5
 
 elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
     log_message "Using dashcam values"
@@ -46,7 +47,9 @@ elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
     YOUTUBEDIR=/mnt/ramfiles/youtubechannel/dashcam/uploadready
     ARCHIVEDIR=/mnt/ramfiles/youtubechannel/dashcam/archive
     WORKINGDIR=/mnt/ramfiles/youtubechannel/dashcam/working
+    # PROCESSFILENAME=/tmp/dashcam.tmp
     DOTIMELAPSE=yes
+    TIMELAPSESPEED=0.25
 
 elif [[ "${HOSTNAME}" == "aeoffice" ]]; then
     log_message "Using development values"
@@ -54,7 +57,9 @@ elif [[ "${HOSTNAME}" == "aeoffice" ]]; then
     YOUTUBEDIR=/home/almostengineer/Downloads /renderserver/youtube
     ARCHIVEDIR=/home/almostengineer/Downloads/renderserver/archive
     WORKINGDIR=/home/almostengineer/Downloads/renderserver/working
+    # PROCESSFILENAME=/tmp/almostengineer.tmp
     DOTIMELAPSE=no
+    TIMELAPSESPEED=0.5
 
 else
     echo "Invalid value for arg 1 was passed in"
@@ -63,13 +68,15 @@ else
     exit 2
 fi
 
-# create process file
+# check if process is already running
 
-if [ ! -f ${PROCESSFILENAME} ]; then
-    touch ${PROCESSFILENAME}
-    log_message "Started at $(date)" > ${PROCESSFILENAME}
+PROCESSES=$(ps -ef | grep "${1}" | wc -l)
+
+if [ ${PROCESSES} -lt 1 ]; then
+    log_message "Starting rendering process"
 else
     log_message "Video rendering is already in progress"
+    log_message "Exiting"
     exit 3
 fi
 
