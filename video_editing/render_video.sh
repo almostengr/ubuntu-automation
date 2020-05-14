@@ -23,7 +23,7 @@ function log_message {
 }
 
 function create_directory {
-    if [[ ! -f ${1} ]]; then
+    if [[ ! -d ${1} ]]; then
         log_message "Creating directory ${1}"
         mkdir ${1}
     fi
@@ -33,31 +33,28 @@ function create_directory {
 
 if [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "media" ]]; then
     log_message "Using almostengineer values"
-    INCOMINGDIR=/mnt/ramfiles/youtubechannel/almostengineer/incoming
-    YOUTUBEDIR=/mnt/ramfiles/youtubechannel/almostengineer/uploadready
-    ARCHIVEDIR=/mnt/ramfiles/youtubechannel/almostengineer/archive
-    WORKINGDIR=/mnt/ramfiles/renderyoutubechannelserver/almostengineer/working
-    # PROCESSFILENAME=/tmp/almostengineer.tmp
+    INCOMINGDIR=/mnt/ramfiles/almostengineer/incoming
+    YOUTUBEDIR=/mnt/ramfiles/almostengineer/uploadready
+    ARCHIVEDIR=/mnt/ramfiles/almostengineer/archive
+    WORKINGDIR=/mnt/ramfiles/almostengineer/working
     DOTIMELAPSE=no
     TIMELAPSESPEED=0.5
 
 elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
     log_message "Using dashcam values"
-    INCOMINGDIR=/mnt/ramfiles/youtubechannel/dashcam/incoming
-    YOUTUBEDIR=/mnt/ramfiles/youtubechannel/dashcam/uploadready
-    ARCHIVEDIR=/mnt/ramfiles/youtubechannel/dashcam/archive
-    WORKINGDIR=/mnt/ramfiles/youtubechannel/dashcam/working
-    # PROCESSFILENAME=/tmp/dashcam.tmp
+    INCOMINGDIR=/mnt/ramfiles/dashcam/incoming
+    YOUTUBEDIR=/mnt/ramfiles/dashcam/uploadready
+    ARCHIVEDIR=/mnt/ramfiles/dashcam/archive
+    WORKINGDIR=/mnt/ramfiles/dashcam/working
     DOTIMELAPSE=yes
     TIMELAPSESPEED=0.25
 
 elif [[ "${HOSTNAME}" == "aeoffice" ]]; then
     log_message "Using development values"
     INCOMINGDIR=/home/almostengineer/Downloads/renderserver/incoming
-    YOUTUBEDIR=/home/almostengineer/Downloads /renderserver/youtube
+    YOUTUBEDIR=/home/almostengineer/Downloads/renderserver/youtube
     ARCHIVEDIR=/home/almostengineer/Downloads/renderserver/archive
     WORKINGDIR=/home/almostengineer/Downloads/renderserver/working
-    # PROCESSFILENAME=/tmp/almostengineer.tmp
     DOTIMELAPSE=no
     TIMELAPSESPEED=0.5
 
@@ -68,16 +65,17 @@ else
     exit 2
 fi
 
-# check if process is already running
+log_message "Check if process is already running"
 
 PROCESSES=$(ps -ef | grep "${1}" | grep -v grep)
 PROCESSCOUNT=$(echo "${PROCESSES}" | wc -l)
+
+echo "${PROCESSES}"
 
 if [ ${PROCESSCOUNT} -lt 3 ]; then
     log_message "Starting rendering process"
 else
     log_message "Video rendering is already in progress"
-    echo "${PROCESSES}"
     log_message "Exiting"
     exit 3
 fi
