@@ -1,9 +1,9 @@
 #!/bin/bash
 
-## DESCRIPTION: This script batch processes project videos that have 
-## been created with Kdenlive. This script is done in a data warehousing 
+## DESCRIPTION: This script batch processes project videos that have
+## been created with Kdenlive. This script is done in a data warehousing
 ## fashion by staging, processing, and archiving the files.
-## AUTHOR: Kenny Robinson @almostengr 
+## AUTHOR: Kenny Robinson @almostengr
 ## DATE: 2020-04-28
 ## USAGE: render_video.sh <config>
 
@@ -91,7 +91,7 @@ cd ${INCOMINGDIR}
 
 # loop through the files in the incoming directory
 for FILENAME in $(ls -l *.gz *.tar)
-do 
+do
     cd ${INCOMINGDIR}
 
     log_message "Processing ${FILENAME}"
@@ -132,10 +132,16 @@ do
 
     log_message "Resolution: ${RESOLUTION}"
 
+    log_message "Removing line for excess black"
+
+    RANDOMSTRING=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 15)
+    TEMPKDENFILE=/tmp/${RANDOMSTRING}.tmp
+    /bin/sed 's|<track producer="black_track"/>||g' ${KDENLIVEFILE} > ${TEMPKDENFILE}
+    cp ${TEMPKDENFILE} ${KDENLIVEFILE}
+
     log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
-    ${MELTBIN} -consumer -avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
-        g=120 crf=23 ab=160k preset=faster threads=4 real_time=-1 -silent
+    ${MELTBIN} ${KDENLIVEFILE}
 
     log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
@@ -151,11 +157,16 @@ do
     fi
 
     # archive the project
+
+    log_message "Archiving the project"
+
     cd ${INCOMINGDIR}
 
     /bin/gzip ${TARFILENAME}
 
     ARCHIVEFILENAME="${TARFILENAME}.gz"
+
+    log_message "Moving the project to the archive"
 
     /bin/mv ${ARCHIVEFILENAME} ${ARCHIVEDIR}
 
