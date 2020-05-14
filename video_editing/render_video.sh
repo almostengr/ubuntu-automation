@@ -37,7 +37,6 @@ if [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "media" ]]; then
     YOUTUBEDIR=/mnt/ramfiles/youtubechannel/almostengineer/uploadready
     ARCHIVEDIR=/mnt/ramfiles/youtubechannel/almostengineer/archive
     WORKINGDIR=/mnt/ramfiles/renderyoutubechannelserver/almostengineer/working
-    # PROCESSFILENAME=/tmp/almostengineer.tmp
     DOTIMELAPSE=no
     TIMELAPSESPEED=0.5
 
@@ -47,7 +46,6 @@ elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
     YOUTUBEDIR=/mnt/ramfiles/youtubechannel/dashcam/uploadready
     ARCHIVEDIR=/mnt/ramfiles/youtubechannel/dashcam/archive
     WORKINGDIR=/mnt/ramfiles/youtubechannel/dashcam/working
-    # PROCESSFILENAME=/tmp/dashcam.tmp
     DOTIMELAPSE=yes
     TIMELAPSESPEED=0.25
 
@@ -57,7 +55,6 @@ elif [[ "${HOSTNAME}" == "aeoffice" ]]; then
     YOUTUBEDIR=/home/almostengineer/Downloads /renderserver/youtube
     ARCHIVEDIR=/home/almostengineer/Downloads/renderserver/archive
     WORKINGDIR=/home/almostengineer/Downloads/renderserver/working
-    # PROCESSFILENAME=/tmp/almostengineer.tmp
     DOTIMELAPSE=no
     TIMELAPSESPEED=0.5
 
@@ -132,31 +129,35 @@ do
 
     log_message "Resolution: ${RESOLUTION}"
 
+    log_message "Removing line for excess black"
+
+    RANDOMSTRING=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 15)
+    TEMPKDENFILE=/tmp/${RANDOMSTRING}.tmp
+    /bin/sed 's|<track producer="black_track"/>||g' ${KDENLIVEFILE} > ${TEMPKDENFILE}
+    cp ${TEMPKDENFILE} ${KDENLIVEFILE}
+
     log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
-    ${MELTBIN} -consumer -avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
-        g=120 crf=23 ab=160k preset=faster threads=4 real_time=-1 -silent
+    ${MELTBIN} ${KDENLIVEFILE}
 
     log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
     if [[ "${DOTIMELAPSE}" == "yes" ]]; then
-        # timelapse filename
-        # TLVIDEOFILENAME=$( echo ${FINALVIDEOFILENAME} | sed -e "s|.mp4|timelapse.mp4|g")
-
-        # generate timelapse file
-        # ${FFMPEGBIN} -i ${FINALVIDEOFILENAME} -vf setpts=0.25*PTS -an ${TLVIDEOFILENAME}
-
-        # call to the timelapse script
         /bin/bash "$(dirname \"${0}\")/timelapse.sh"
     fi
 
     # archive the project
+
+    log_message "Archiving the project"
+
     cd ${INCOMINGDIR}
 
     /bin/gzip ${TARFILENAME}
 
     ARCHIVEFILENAME="${TARFILENAME}.gz"
 
+    log_message "Moving the project to the archive"
+    
     /bin/mv ${ARCHIVEFILENAME} ${ARCHIVEDIR}
 
     ls -1 ${ARCHIVEDIR}
