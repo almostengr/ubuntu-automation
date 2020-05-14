@@ -89,6 +89,10 @@ create_directory ${ARCHIVEDIR}
 # change to the incoming file directory
 cd ${INCOMINGDIR}
 
+log_message 'Renamed incoming files'
+
+rename 's/ /_/g' *
+
 # loop through the files in the incoming directory
 for FILENAME in $(ls -l *.gz *.tar)
 do
@@ -141,7 +145,7 @@ do
 
     log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
-    ${MELTBIN} ${KDENLIVEFILE}
+    # ${MELTBIN} ${KDENLIVEFILE}
 
     log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
