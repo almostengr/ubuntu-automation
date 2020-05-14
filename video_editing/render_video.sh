@@ -70,12 +70,14 @@ fi
 
 # check if process is already running
 
-PROCESSES=$(ps -ef | grep "${1}" | wc -l)
+PROCESSES=$(ps -ef | grep "${1}" | grep -v grep)
+PROCESSCOUNT=$(echo "${PROCESSES}" | wc -l)
 
-if [ ${PROCESSES} -lt 1 ]; then
+if [ ${PROCESSCOUNT} -lt 3 ]; then
     log_message "Starting rendering process"
 else
     log_message "Video rendering is already in progress"
+    echo "${PROCESSES}"
     log_message "Exiting"
     exit 3
 fi
