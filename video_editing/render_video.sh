@@ -14,12 +14,14 @@ FFMPEGBIN=/usr/bin/ffmpeg
 HOSTNAME=$(/bin/hostname)
 
 function clean_render_directory {
+    log_message "Cleaning Working directory"
     cd ${WORKINGDIR}
     rm -rf *
 }
 
 function log_message {
-    echo "$(/bin/date) ${1}"
+    # echo "$(/bin/date) ${1}"
+    echo "${1}"
 }
 
 function create_directory {
@@ -49,7 +51,7 @@ elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
     DOTIMELAPSE=yes
     TIMELAPSESPEED=0.25
 
-elif [[ "${HOSTNAME}" == "aeoffice" ]]; then
+elif [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "aeoffice" ]]; then
     log_message "Using development values"
     INCOMINGDIR=/home/almostengineer/Downloads/renderserver/incoming
     YOUTUBEDIR=/home/almostengineer/Downloads/renderserver/youtube
@@ -67,7 +69,7 @@ fi
 
 log_message "Check if process is already running"
 
-PROCESSES=$(ps -ef | grep "${1}" | grep -v grep)
+PROCESSES=$(ps -ef | grep "${1}" | grep -v grep | grep render_video)
 PROCESSCOUNT=$(echo "${PROCESSES}" | wc -l)
 
 echo "${PROCESSES}"
@@ -94,47 +96,54 @@ log_message 'Renamed incoming files'
 rename 's/ /_/g' *
 
 # loop through the files in the incoming directory
-for FILENAME in $(ls -l *.gz *.tar)
+for TARFILENAME in $(ls -1 *.gz *.tar)
 do
+
+    clean_render_directory
+
     cd ${INCOMINGDIR}
 
-    log_message "Processing ${FILENAME}"
+    log_message "Processing ${TARFILENAME}"
 
     # handle file if tarred and compressed
     if [[ "${FILENAME}" == *".gz" ]]; then
-        log_message "Uncompressing ${FILENAME}"
-        /bin/gunzip ${FILENAME}
+        log_message "Uncompressing ${TARFILENAME}"
+        /bin/gunzip ${TARFILENAME}
 
-        TARFILENAME=$(echo ${FILENAME} | sed -e 's/.gz//g')
+        TARFILENAME=$(echo ${TARFILENAME} | sed -e 's/.gz//g')
         TARFILENAME="${INCOMINGDIR}/${TARFILENAME}"
     fi
 
     # untar the file to the working directory
     log_message "Untarring file ${TARFILENAME}"
 
-    /bin/tar -xf ${TARFILENAME} -C ${WORKINGDIR}
+    /bin/tar -xf ${TARFILENAME} -C "${WORKINGDIR}"
 
     log_message "Done uncompressing file ${TARFILENAME}"
 
     # change to the working directory
     cd ${WORKINGDIR}
 
-    KDENLIVEFILE=$(ls -1 *kdenlive)
+    rename 's/ /_/g' *kdenlive
 
-    FINALVIDEOFILENAME=$(echo ${KDENLIVEFILE} | sed -e 's/.kdenlive//g' )
-    FINALVIDEOFILENAME=${FINALVIDEOFILENAME}".mp4"
-    FINALVIDEOFILENAME=${YOUTUBEDIR}"/${FINALVIDEOFILENAME}"
+    KDENLIVEPROJECTFILE=$(ls -1 *kdenlive)
 
-    log_message "Kdenlive file: "${KDENLIVEFILE}
-    log_message "Video Output file: "${FINALVIDEOFILENAME}
+    KDENLIVEFILE="${WORKINGDIR}/${KDENLIVEPROJECTFILE}"
+
+    FINALVIDEOFILENAME=$(echo ${KDENLIVEPROJECTFILE} | sed -e 's/.kdenlive//g' )
+    FINALVIDEOFILENAME="${FINALVIDEOFILENAME}.mp4"
+    FINALVIDEOFILENAME="${YOUTUBEDIR}/${FINALVIDEOFILENAME}"
+
+    log_message "Kdenlive file: ${KDENLIVEFILE}"
+    log_message "Video Output file: ${FINALVIDEOFILENAME}"
 
     # get resolution from kdenlive file
 
-    RESOLUTION=$(grep "kdenlive:docproperties.profile" KDENLIVEFILE)
-    RESOLUTION=echo ${RESOLUTION} | sed -e "s|<property name=\"kdenlive:docproperties.profile\">||g"
-    RESOLUTION=echo ${RESOLUTION} | sed -e "s|</property>||g"
+    # RESOLUTION=$(grep "kdenlive:docproperties.profile" KDENLIVEFILE)
+    # RESOLUTION=echo ${RESOLUTION} | sed -e "s|<property name=\"kdenlive:docproperties.profile\">||g"
+    # RESOLUTION=echo ${RESOLUTION} | sed -e "s|</property>||g"
 
-    log_message "Resolution: ${RESOLUTION}"
+    # log_message "Resolution: ${RESOLUTION}"
 
     log_message "Removing line for excess black"
 
@@ -143,9 +152,24 @@ do
     /bin/sed 's|<track producer="black_track"/>||g' ${KDENLIVEFILE} > ${TEMPKDENFILE}
     cp ${TEMPKDENFILE} ${KDENLIVEFILE}
 
+    log_message "Removing consumer line"
+    /bin/grep -v "<consumer" ${KDENLIVEFILE} > ${TEMPKDENFILE}
+    cp ${TEMPKDENFILE} ${KDENLIVEFILE}
+
     log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
-    # ${MELTBIN} ${KDENLIVEFILE}
+    # $(${MELTBIN} ${KDENLIVEFILE}) > ${FINALVIDEOFILENAME} 2>&1
+    # ${MELTBIN} -consumer -avformat:${FINALVIDEOFILENAME} ${KDENLIVEFILE}
+
+#    ${MELTBIN} ${KDENLIVEFILE} -consumer avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
+#        g=120 crf=23 ab=160k preset=faster threads=4 real_time=-1
+
+    ${MELTBIN} ${KDENLIVEFILE} -consumer avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
+        g=15 crf=23 ab=160k preset=faster threads=4 real_time=-1 preset=faster progressive=1
+
+    # ${MELTBIN} ${KDENLIVEFILE} -consumer mlt_service=avformat target=${FINALVIDEOFILENAME} properties=x264-medium \ 
+        # f=mp4 vcodec=libx264 acodec=aac g=15 crf=23 ab=160k preset=faster threads=4 real_time=-1 progressive=1
+        # movflags=+faststart preset=faster
 
     log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
@@ -157,7 +181,11 @@ do
         # ${FFMPEGBIN} -i ${FINALVIDEOFILENAME} -vf setpts=0.25*PTS -an ${TLVIDEOFILENAME}
 
         # call to the timelapse script
+        log_message "Creating timelapse"
+
         /bin/bash "$(dirname \"${0}\")/timelapse.sh"
+
+        log_message "Done creating timelapse"
     fi
 
     # archive the project
@@ -168,19 +196,19 @@ do
 
     /bin/gzip ${TARFILENAME}
 
-    ARCHIVEFILENAME="${TARFILENAME}.gz"
+    ARCHIVEFILENAME="${TARFILENAME}"
 
     log_message "Moving the project to the archive"
 
     /bin/mv ${ARCHIVEFILENAME} ${ARCHIVEDIR}
 
     ls -1 ${ARCHIVEDIR}
-
-    clean_render_directory
 done
 
 # remove the rendering file once completed
 log_message "Processing completed"
+
+clean_render_directory
 rm -f ${PROCESSFILENAME}
 
 /bin/date
