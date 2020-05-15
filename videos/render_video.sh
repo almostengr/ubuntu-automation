@@ -73,7 +73,7 @@ PROCESSCOUNT=$(echo "${PROCESSES}" | wc -l)
 
 echo "${PROCESSES}"
 
-if [ ${PROCESSCOUNT} -gt 2 ]; then
+if [ ${PROCESSCOUNT} -gt 3 ]; then
     log_message "Video rendering is already in progress"
     log_message "Exiting"
     exit 3
@@ -147,8 +147,8 @@ do
 
     log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
-    ${MELTBIN} ${KDENLIVEFILE} -consumer avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
-        g=15 crf=23 ab=160k preset=faster threads=4 real_time=-1 preset=faster progressive=1
+    /usr/bin/xvfb-run -a ${MELTBIN} ${KDENLIVEFILE} -consumer avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
+        g=15 crf=23 ab=160k preset=faster threads=4 real_time=-1 preset=faster progressive=1 -silent
 
     log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
