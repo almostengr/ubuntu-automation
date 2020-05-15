@@ -20,8 +20,7 @@ function clean_render_directory {
 }
 
 function log_message {
-    # echo "$(/bin/date) ${1}"
-    echo "${1}"
+    echo "$(/bin/date) ${1}"
 }
 
 function create_directory {
@@ -31,12 +30,12 @@ function create_directory {
     fi
 }
 
-# determine the type of video being rendered
+# determine the environment of video being rendered
 
 if [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "media" ]]; then
     log_message "Using almostengineer values"
     INCOMINGDIR=/mnt/ramfiles/almostengineer/incoming
-    YOUTUBEDIR=/mnt/ramfiles/almostengineer/uploadready
+    YOUTUBEDIR=/mnt/ramfiles/almostengineer/youtube
     ARCHIVEDIR=/mnt/ramfiles/almostengineer/archive
     WORKINGDIR=/mnt/ramfiles/almostengineer/working
     DOTIMELAPSE=no
@@ -45,7 +44,7 @@ if [[ "${1}" == "almostengineer" && "${HOSTNAME}" == "media" ]]; then
 elif [[ "${1}" == "dashcam" && "${HOSTNAME}" == "media" ]]; then
     log_message "Using dashcam values"
     INCOMINGDIR=/mnt/ramfiles/dashcam/incoming
-    YOUTUBEDIR=/mnt/ramfiles/dashcam/uploadready
+    YOUTUBEDIR=/mnt/ramfiles/dashcam/youtube
     ARCHIVEDIR=/mnt/ramfiles/dashcam/archive
     WORKINGDIR=/mnt/ramfiles/dashcam/working
     DOTIMELAPSE=yes
@@ -74,9 +73,7 @@ PROCESSCOUNT=$(echo "${PROCESSES}" | wc -l)
 
 echo "${PROCESSES}"
 
-if [ ${PROCESSCOUNT} -lt 3 ]; then
-    log_message "Starting rendering process"
-else
+if [ ${PROCESSCOUNT} -gt 2 ]; then
     log_message "Video rendering is already in progress"
     log_message "Exiting"
     exit 3
@@ -93,7 +90,7 @@ cd ${INCOMINGDIR}
 
 log_message 'Renamed incoming files'
 
-rename 's/ /_/g' *
+/usr/bin/rename 's/ /_/g' *
 
 # loop through the files in the incoming directory
 for TARFILENAME in $(ls -1 *.gz *.tar)
@@ -124,7 +121,7 @@ do
     # change to the working directory
     cd ${WORKINGDIR}
 
-    rename 's/ /_/g' *kdenlive
+    /usr/bin/rename 's/ /_/g' *kdenlive
 
     KDENLIVEPROJECTFILE=$(ls -1 *kdenlive)
 
@@ -136,14 +133,6 @@ do
 
     log_message "Kdenlive file: ${KDENLIVEFILE}"
     log_message "Video Output file: ${FINALVIDEOFILENAME}"
-
-    # get resolution from kdenlive file
-
-    # RESOLUTION=$(grep "kdenlive:docproperties.profile" KDENLIVEFILE)
-    # RESOLUTION=echo ${RESOLUTION} | sed -e "s|<property name=\"kdenlive:docproperties.profile\">||g"
-    # RESOLUTION=echo ${RESOLUTION} | sed -e "s|</property>||g"
-
-    # log_message "Resolution: ${RESOLUTION}"
 
     log_message "Removing line for excess black"
 
@@ -158,18 +147,8 @@ do
 
     log_message "Rendering video: ${FINALVIDEOFILENAME}"
 
-    # $(${MELTBIN} ${KDENLIVEFILE}) > ${FINALVIDEOFILENAME} 2>&1
-    # ${MELTBIN} -consumer -avformat:${FINALVIDEOFILENAME} ${KDENLIVEFILE}
-
-#    ${MELTBIN} ${KDENLIVEFILE} -consumer avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
-#        g=120 crf=23 ab=160k preset=faster threads=4 real_time=-1
-
     ${MELTBIN} ${KDENLIVEFILE} -consumer avformat:${FINALVIDEOFILENAME} properties=x264-medium f=mp4 vcodec=libx264 acodec=aac \
         g=15 crf=23 ab=160k preset=faster threads=4 real_time=-1 preset=faster progressive=1
-
-    # ${MELTBIN} ${KDENLIVEFILE} -consumer mlt_service=avformat target=${FINALVIDEOFILENAME} properties=x264-medium \ 
-        # f=mp4 vcodec=libx264 acodec=aac g=15 crf=23 ab=160k preset=faster threads=4 real_time=-1 progressive=1
-        # movflags=+faststart preset=faster
 
     log_message "Done rendering video: ${FINALVIDEOFILENAME}"
 
@@ -188,8 +167,6 @@ do
         log_message "Done creating timelapse"
     fi
 
-    # archive the project
-
     log_message "Archiving the project"
 
     cd ${INCOMINGDIR}
@@ -202,13 +179,15 @@ do
 
     /bin/mv ${ARCHIVEFILENAME} ${ARCHIVEDIR}
 
+    log_message "Archive directory contents:"
     ls -1 ${ARCHIVEDIR}
 done
 
 # remove the rendering file once completed
-log_message "Processing completed"
 
 clean_render_directory
 rm -f ${PROCESSFILENAME}
+
+log_message "Processing completed"
 
 /bin/date
