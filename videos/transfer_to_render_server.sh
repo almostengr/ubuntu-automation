@@ -4,9 +4,9 @@
 
 /bin/echo "Transferring files"
 
-/usr/bin/scp -p /home/almostengineer/Videos/dashcamvideos/*tar.gz iamadmin@media://mnt/ramfiles/renderserver/dashpending/
+/usr/bin/scp -p /home/almostengineer/Videos/dashcamvideos/*tar.gz iamadmin@media://mnt/ramfiles/dashcam/incoming
 
-/usr/bin/scp -p /home/almostengineer/Videos/aevideos/*tar.gz iamadmin@media://mnt/ramfiles/renderserver/aepending/
+/usr/bin/scp -p /home/almostengineer/Videos/aevideos/*tar.gz iamadmin@media://mnt/ramfiles/almostengineer/incoming
 
 /bin/date 
 
@@ -19,3 +19,4 @@ mv /home/almostengineer/Videos/aevideos/*tar.gz /mnt/d74511ce-4722-471d-8d27-050
 /bin/echo "Process complete"
 
 /bin/date
+
