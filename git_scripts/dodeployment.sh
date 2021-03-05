@@ -30,6 +30,11 @@ function main() {
 # main function and logic
 
 	CODEDIR="${1}"
+	BRANCH="${2}"
+
+	if [ -z "${BRANCH}" ]; then
+		BRANCH="main"
+	fi
 
 	log_message "Changing directory"
 
@@ -44,33 +49,33 @@ function main() {
 		git fetch --all 
 
 		log_message "Done fetching latest commits from repo"
-		log_message "Checking out master"
+		log_message "Checking out ${BRANCH} branch"
 
-		git checkout master
+		git checkout ${BRANCH}
 
-		log_message "Done checking out master"
-		log_message "Verifiying on master branch"
+		log_message "Done checking out ${BRANCH} branch"
+		log_message "Verifiying on ${BRANCH} branch"
 
 		OUTPUTSTATUS=$(git status)
 
 		debug_message "OUTPUTSTATUS=${OUTPUTSTATUS}"
 	
 		# get the output and parse the line
-		ROWCOUNT=$(echo ${OUTPUTSTATUS} | grep "On branch master" | wc -l)
+		ROWCOUNT=$(echo ${OUTPUTSTATUS} | grep "On branch ${BRANCH}" | wc -l)
 
 		debug_message "Row Count: ${ROWCOUNT}"
 
-		log_message "Done verifying on master branch"
+		log_message "Done verifying on ${BRANCH} branch"
 	
 		if [ ${ROWCOUNT} -eq 1 ]; then
 		# check that the row exists in the output
-			log_message "Pulling master branch"
+			log_message "Pulling ${BRANCH} branch"
 
-			git pull origin master --commit
+			git pull origin ${BRANCH}  --commit
 
-			log_message "Done pulling master branch"
+			log_message "Done pulling ${BRANCH} branch"
 		else
-			log_message "Could not checkout master branch"
+			log_message "Could not checkout ${BRANCH} branch"
 			log_message "${OUTPUTSTATUS}"
 		fi
 	else
