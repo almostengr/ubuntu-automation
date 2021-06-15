@@ -11,7 +11,7 @@
 ################################################################################
 
 # FILES OLDER THAN THIS NUMBER OF DAYS WILL BE REMOVED 
-DELAY=30
+DELAY=14
 
 if [ "$(id -u)" == "0" ]; then
 	cd /var/log 
