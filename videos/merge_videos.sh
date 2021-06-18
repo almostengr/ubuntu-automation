@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# Commands referenced from https://scribbleghost.net/2018/10/26/merge-video-files-together-with-ffmpeg/
+##############################################
+# Author: Kenny Robinson, @almostengr
+# Video Tutorial: https://youtu.be/FEatUj8B0XA
+# Description: Commands referenced from 
+# https://scribbleghost.net/2018/10/26/merge-video-files-together-with-ffmpeg/
+###############################################
 
 /bin/date
 

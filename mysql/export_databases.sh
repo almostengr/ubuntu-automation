@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ####################################################################
-# Name: export_databases.sh
 # Author: Kenny Robinson, @almostengr
 # Usage: export_databases.sh
 # Description: Export all the databases to a file.
@@ -31,4 +30,3 @@ if [ "${PASSWORD"} == "" ]; then
 fi
 
 /usr/bin/mysqldump --all-databases -u "${USERNAME}" -p"${PASSWORD}" -h "${HOSTNAME}" > ./databaseexport.sql
-

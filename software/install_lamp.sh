@@ -26,4 +26,3 @@ else
 	# THROW ERROR IF NOT RUNNING AS ROOT
 	/bin/echo "$(date) ERROR: Must be root to run script."
 fi
-

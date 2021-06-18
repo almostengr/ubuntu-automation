@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ################################################################################
-# Filename: dodeployment.sh
 # Description: Used to deploy master branch of code to server. Can be used with
 # cron job to automatic recurring deployments.
 # Author: Kenny Robinson
@@ -88,4 +87,3 @@ log_message $(date)
 main $*
 
 log_message $(date)
-

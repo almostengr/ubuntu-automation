@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ################################################################################
-# Script: releaseupgrade.sh
 # Description: Script to automatically perform
 # Author: Kenny Robinson, @almostengr
 ################################################################################
@@ -28,4 +27,3 @@ else
 	# THROW ERROR IF NOT RUNNING AS ROOT
 	/bin/echo "ERROR: Must be root to run script."
 fi
-

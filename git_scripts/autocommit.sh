@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# SCript to automatically commit the updates to the files and the push them to remote repository.
+###############################################################################
+# Author: Kenny Robinson, @almostengr
+# Description: Script to automatically commit the updates to the files and 
+# the push them to remote repository.
+###############################################################################
 
 /bin/date
 

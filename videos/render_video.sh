@@ -1,11 +1,13 @@
 #!/bin/bash
 
-## DESCRIPTION: This script batch processes project videos that have
-## been created with Kdenlive. This script is done in a data warehousing
-## fashion by staging, processing, and archiving the files.
-## AUTHOR: Kenny Robinson @almostengr
-## DATE: 2020-04-28
-## USAGE: render_video.sh <config>
+##############################################
+# Author: Kenny Robinson, @almostengr
+# DATE: 2020-04-28
+# DESCRIPTION: This script batch processes project videos that have
+# been created with Kdenlive. This script is done in a data warehousing
+# fashion by staging, processing, and archiving the files.
+# USAGE: render_video.sh <config>
+###############################################
 
 /bin/date
 

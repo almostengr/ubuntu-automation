@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ###############################################################################
-# Script: hardening_script.sh
 # Author: Kenny Robinson, @almostengr
 # Description: To automatically install additional software on Ubuntu machines 
 # so that manually running each of the commands does not have to be performed.
@@ -54,4 +53,3 @@ else
 	echo "ERROR: Must be root to run script. Re-run script using"
 	echo "sudo bash hardening_script.sh"
 fi
-

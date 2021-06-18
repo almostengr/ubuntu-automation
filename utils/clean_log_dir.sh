@@ -3,7 +3,6 @@
 ################################################################################
 # AUTHOR: Kenny Robinson, @almostengr
 # DATE CREATED: 2016-05-29
-# USAGE: clean_log_dir.sh
 # DESCRIPTION: Cleans the log directory on the machine. Log and compressed log 
 # files that are older than 30 days are automatically discarded. To prevent 
 # permissions error when running the script via cron or other automation, the 

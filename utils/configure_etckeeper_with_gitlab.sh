@@ -1,12 +1,10 @@
 #!/bin/bash
 
-##############################################
-# Name: configure_etckeeper_with_gitlab.sh
+################################################################################
 # Author: Kenny Robinson, @almostengr
 # Video Tutorial: https://youtu.be/dPm8cazYy00
-# Description: This script will set up etckeeper on your
-# computer with Gitlab.
-###############################################
+# Description: This script will set up etckeeper on your computer with Gitlab.
+################################################################################
 
 if [ "$(id -u)" == "0" ]; then
 	read -p "Enter GitLab URL: " gitlabURL

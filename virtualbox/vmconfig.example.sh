@@ -1,5 +1,6 @@
 #!/bin/bash
 
+################################################################################
 ## Configuration File
 ##
 ## Variables are explained and defined below:
@@ -13,6 +14,7 @@
 ## /tmp are suitable locations.
 ##
 ## VMSDIFF should point to a file location that has write permissions.
+################################################################################
 
 VBOXBIN=/usr/bin/VBoxManage
 VMSRUNNING=/var/tmp/vmsrunning.txt
@@ -28,4 +30,3 @@ export VBOXBIN
 export VMSRUNNING
 export VMSALL
 export VMSDIFF
-

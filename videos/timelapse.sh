@@ -1,11 +1,13 @@
 #!/bin/bash
 
+###############################################
 ## DESCRIPTION: Generate a timelapse video from the provided input file.
 ## AUTHOR: Kenny Robinson @almostengr
 ## DATE: 2020-04-30
 ## USAGE: timelapse.sh <filename> 
 ## <filename> is the name of the video file that a timelapse will be 
 ## generated for.
+###############################################
 
 function log_message {
     echo "$(/bin/date) ${1}"

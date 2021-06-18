@@ -1,12 +1,11 @@
 #!/bin/bash
 
-##############################################
-# Name: uninstall_plex.sh
+################################################################################
 # Author: Kenny Robinson, @almostengr
 # Video Tutorial: https://youtu.be/FEatUj8B0XA
 # Description: Uninstall Plex Media Server from your 
 # computer or server.
-###############################################
+################################################################################
 
 if [ "$(id -u)" == "0" ]; then
 	echo "Removing Plex Media Server"
@@ -24,4 +23,3 @@ else
 	echo "Rerun this script with the following command"
 	echo "sudo bash <scriptname>
 fi
-

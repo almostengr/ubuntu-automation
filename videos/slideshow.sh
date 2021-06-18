@@ -1,7 +1,13 @@
 #!/bin/bash
 
+##############################################
+# Author: Kenny Robinson, @almostengr
+# DATE: 2020-04-28
+# DESCRIPTION: 
 # create a video slide show from a folder of images
 # information sourced from https://trac.ffmpeg.org/wiki/Slideshow
+# USAGE: render_video.sh <config>
+###############################################
 
 /bin/date
 

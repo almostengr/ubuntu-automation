@@ -1,5 +1,11 @@
 #!/bin/bash 
 
+###############################################
+# Author: Kenny Robinson, @almostengr
+# DESCRIPTION: This script transfers files to the main computer 
+# to the rendering server for processing
+###############################################
+
 /bin/date
 
 /bin/echo "Transferring files"
@@ -19,4 +25,3 @@ mv /home/almostengineer/Videos/aevideos/*tar.gz /mnt/d74511ce-4722-471d-8d27-050
 /bin/echo "Process complete"
 
 /bin/date
-

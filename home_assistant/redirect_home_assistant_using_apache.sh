@@ -3,7 +3,7 @@
 ##############################################
 # Name: redirect_home_assistant_using_apache.sh
 # Author: Kenny Robinson, @almostengr
-# Video Tutorial: https://youtu.be/dPm8cazYy00
+# Video Tutorial: https://www.youtube.com/watch?v=Zn9-tm5bHDY&t=1s
 # Description: Redirect to Home Assistant using Apache2
 ###############################################
 
@@ -49,4 +49,3 @@ else
 	echo "Rerun this script with the following command"
 	echo "sudo bash redirect_home_assistant_using_apache.sh"
 fi
-

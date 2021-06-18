@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ###############################################################################
-# Script: remove_duplicates.sh
 # Author: Kenny Robinson, @almostengr
 # Description: Remove duplicate files from a particular directory. Need to be
 # in the diretory that you wish to clean BEFORE running this script.
@@ -40,4 +39,3 @@ echo "Checking disk space"
 du -sh "$(pwd)"
 
 echo "Done checking disk space"
-

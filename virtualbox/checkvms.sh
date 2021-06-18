@@ -87,4 +87,3 @@ cd ${DIR}
 . config.sh
 
 main $*
-

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ####################################################################
-# Name: config.example.sh
 # Author: Kenny Robinson, @almostengr
 # Description: Example configuration file
 ####################################################################
@@ -11,4 +10,3 @@ HOSTNAME="localhost"
 PORT="3306"
 USERNAME="user"
 PASSWORD="pass"
-
