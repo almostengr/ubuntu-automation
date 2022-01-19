@@ -42,8 +42,16 @@ echo "INFO: Video Title: ${VIDEOTITLE}"
 
 echo "INFO: $(date) Rendering video"
 
-# /usr/bin/ffmpeg -f concat -i input.txt -an -vf "drawtext=textfile:Kenny Ram Dash Cam:fontcolor=white:fontsize=30:x=920:y=20:box=1:boxborderw=7:boxcolor=black@0.7" "${OUTPUTNAME}.mp4"
-/usr/bin/ffmpeg -y -f concat -i input.txt -an -vf "drawtext=textfile:Kenny Ram Dash Cam:fontcolor=white:fontsize=25:x=w-tw-50:y=50:box=1:boxborderw=7:boxcolor=black@0.3, drawtext=textfile:'${VIDEOTITLE}':fontcolor=white:fontsize=25:x=50:y=50:box=1:boxborderw=7:boxcolor=black@0.3" "${OUTPUTNAME}.mp4"
+COLOR="white"
+
+CONTAINSNIGHT=$(echo ${VIDEOTITLE} | grep -i night | wc -l)
+
+if [ ${CONTAINSNIGHT} -eq 1 ]; then
+    COLOR="orange"
+fi
+
+# /usr/bin/ffmpeg -f concat -i input.txt -an -vf "drawtext=textfile:Kenny Ram Dash Cam:fontcolor=${COLOR}:fontsize=30:x=920:y=20:box=1:boxborderw=7:boxcolor=black@0.7" "${OUTPUTNAME}.mp4"
+/usr/bin/ffmpeg -y -f concat -i input.txt -an -vf "drawtext=textfile:Kenny Ram Dash Cam:fontcolor=${COLOR}:fontsize=25:x=w-tw-50:y=50:box=1:boxborderw=7:boxcolor=black@0.3, drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:fontsize=25:x=50:y=50:box=1:boxborderw=7:boxcolor=black@0.3" "${OUTPUTNAME}.mp4"
 
 echo "INFO: $(date) Packaging video into archive"
 tar -czvf "${BASENAME}.tar.gz" "${OUTPUTNAME}.mp4" details.txt
