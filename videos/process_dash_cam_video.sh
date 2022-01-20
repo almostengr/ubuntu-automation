@@ -88,16 +88,18 @@ LOWERRIGHT="x=w-tw-${PADDING}:y=h-th-${PADDING}-30"
 #     SUBTITLES=", ass=subtitles.ass" #:enable='gt(t,2)'"
 # fi
 
+GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
+
 DESTINATIONDETAILS=""
 if [ -f "destination.txt" ]; then
     echo "INFO: $(date) Found drive details file"
-    DESTINATIONDETAILS=", drawtext=textfile=destination.txt:fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}:enable='between(t,5,12)'"
+    DESTINATIONDETAILS=", drawtext=textfile=destination.txt:${GENERALDETAILS}:enable='between(t,5,12)'"
 fi
 
 MAJORROADDETAILS=""
 if [ -f "majorroads.txt" ]; then
     echo "INFO: $(date) Found major road details file"
-    MAJORROADDETAILS=", drawtext=textfile=majorroads.txt:fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}:enable='between(t,12,20)'"
+    MAJORROADDETAILS=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
 fi
 
 ## create thumbnail from title
