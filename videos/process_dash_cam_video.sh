@@ -38,10 +38,8 @@ echo "INFO: $(date) Making the list of video files"
 for file in $(ls -1tr *mp4 *MP4 *MOV *mov) ;
 # for file in $(ls -1 *mp4 *MP4 *MOV *mov) ;
 do
-    if [ "${file}" != "map.mov" ]; then
-        echo "file ${file}" >> input.txt
-        echo "$(pwd)/${file}" >> details.txt
-    fi
+    echo "file ${file}" >> input.txt
+    echo "$(pwd)/${file}" >> details.txt
 done
 
 echo ${VIDEOTITLE} | fold -sw 60 > title.txt
@@ -104,7 +102,9 @@ fi
 
 ## create thumbnail from title
 echo "INFO: $(date) Creating thumbnail"
-/usr/bin/convert -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.png
+# /usr/bin/ffmpeg -i $(ls -1 *MOV *mp4 | head -1) -ss 25 -frames:v 1 thumbnail.jpg
+# /usr/bin/convert thumbnail.jpg -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.png
+/usr/bin/convert -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.jpg
 
 ## channel title
 CHANNELNAME="drawtext=textfile:'Kenny Ram Dash Cam':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
@@ -113,7 +113,7 @@ CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,20)'"
 
 ## video title
 TITLETEXT=$(${VIDEOTITLE} | fold -sw 60)
-TITLE=", drawtext=textfile=title.txt:fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
+TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
 # TITLE1="${TITLE}:enable='between(t,0,5)':fontsize=${FONTSIZE}+15:${CENTERED}"
 TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,20)'"
 TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,20)'"
@@ -121,12 +121,15 @@ TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,20)'
 # /usr/bin/ffmpeg -f concat -i input.txt -an -vf "drawtext=textfile:Kenny Ram Dash Cam:fontcolor=${COLOR}:fontsize=30:x=920:y=20:box=1:boxborderw=7:boxcolor=black@0.7" "${OUTPUTNAME}.mp4"
 /usr/bin/ffmpeg -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}" "${OUTPUTNAME}.mp4"
 
+echo "INFO: $(date) Removing temporary files"
+/bin/rm input.txt details.txt
+
 echo "INFO: $(date) Packaging video into archive"
-/bin/tar -czvf "${BASENAME}.tar.gz" "${OUTPUTNAME}.mp4" majorroads.txt destination.txt details.txt *.png
+/bin/tar -czvf "${BASENAME}.tar.gz" "${OUTPUTNAME}.mp4" *.txt thumbnail.jpg
 
 echo "INFO: $(date) Moving video and thumbnail to upload directory"
 /bin/mv "${OUTPUTNAME}.mp4" "${DASHCAMFOLDER}/upload"
-/bin/mv "thumbnail.png" "${DASHCAMFOLDER}/upload/${OUTPUTNAME}.png"
+/bin/mv "thumbnail.jpg" "${DASHCAMFOLDER}/upload/${OUTPUTNAME}.jpg"
 
 echo "INFO: $(date) Moving archive to archive directory"
 /bin/mv "${BASENAME}.tar.gz" "${DASHCAMFOLDER}/archive"
