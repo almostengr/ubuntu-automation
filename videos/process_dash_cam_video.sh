@@ -100,7 +100,7 @@ function renderVideo() {
     CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,20)'"
 
     ## video title
-    TITLETEXT=$(${VIDEOTITLE} | fold -sw 60)
+    TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
     TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
     TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,20)'"
     TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,20)'"
