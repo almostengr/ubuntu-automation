@@ -112,10 +112,12 @@ function renderVideo() {
     TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,20)'"
     TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,20)'"
 
-    /usr/bin/ffmpeg -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}" "${OUTPUTNAME}.mp4"
+    LOGLEVEL="error"
+
+    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}" "${OUTPUTNAME}.mp4"
 
     echo "INFO: $(date) Creating thumbnail"
-    /usr/bin/ffmpeg -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
+    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
 
     echo "INFO: $(date) Removing temporary files"
     /bin/rm input.txt details.txt
