@@ -142,7 +142,7 @@ do
 
     checkDiskSpace
 
-    if [[ "${VIDDIRECTORY}" == "upload/" || "${VIDDIRECTORY}" == "archive/" || "${VIDDIRECTORY}" == "*ignore*" ]]; then
+    if [[ "${VIDDIRECTORY}" == "upload/" || "${VIDDIRECTORY}" == "archive/" || "${VIDDIRECTORY}" == *"ignore"* ]]; then
         continue
     fi
 
