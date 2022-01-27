@@ -88,11 +88,18 @@ function renderVideo() {
         MAJORROADDETAILS=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
     fi
 
+    SUBTITLESFILE=""
+    if [ -f "subtitles.ass" ]; then
+        echo "INFO: $(date) Found subtitles file"
+        SUBTITLESFILE=", subtitles=subtitles.ass"
+    fi
+
+    SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=7:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,600),5)':${LOWERCENTER}"
+
     ## create thumbnail from title
-    echo "INFO: $(date) Creating thumbnail"
-    # /usr/bin/ffmpeg -i $(ls -1 *MOV *mp4 | head -1) -ss 25 -frames:v 1 thumbnail.jpg
+    # echo "INFO: $(date) Creating thumbnail"
     # /usr/bin/convert thumbnail.jpg -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.png
-    /usr/bin/convert -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.jpg
+    # /usr/bin/convert -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.jpg
 
     ## channel title
     CHANNELNAME="drawtext=textfile:'Kenny Ram Dash Cam':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
@@ -105,7 +112,10 @@ function renderVideo() {
     TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,20)'"
     TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,20)'"
 
-    /usr/bin/ffmpeg -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}" "${OUTPUTNAME}.mp4"
+    /usr/bin/ffmpeg -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}" "${OUTPUTNAME}.mp4"
+
+    echo "INFO: $(date) Creating thumbnail"
+    /usr/bin/ffmpeg -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
 
     echo "INFO: $(date) Removing temporary files"
     /bin/rm input.txt details.txt
@@ -122,6 +132,8 @@ function renderVideo() {
 }
 
 
+## main
+
 cd "${DASHCAMFOLDER}"
 
 for VIDDIRECTORY in */
@@ -136,8 +148,6 @@ do
 
     cd "${VIDDIRECTORY}"
     echo "INFO: $(date) Rendering video files in $(pwd)"
-
-    /bin/pwd
 
     renderVideo
 done
