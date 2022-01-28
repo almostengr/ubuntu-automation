@@ -24,11 +24,6 @@ function renderVideo() {
     echo "INFO: $(date) Performing cleanup"
     /bin/rm input.txt details.txt
 
-    ## todo check why intro video causes problems with rendering
-
-    # echo "INFO: $(date) Copying video intro"
-    # /bin/cp -p "/mnt/d74511ce-4722-471d-8d27-05013fd521b3/ytvideostructure/dash_cam_opening_shortened.mp4" AAAAintro.mp4
-
     BASENAME=$(/usr/bin/basename "$(pwd)")
     OUTPUTNAME="${BASENAME}"
     VIDEOTITLE=$(cut -d ";" -f 1 <<< "${BASENAME}")
@@ -94,27 +89,25 @@ function renderVideo() {
         SUBTITLESFILE=", subtitles=subtitles.ass"
     fi
 
-    SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=7:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,600),5)':${LOWERCENTER}"
+    RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
+    SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
 
-    ## create thumbnail from title
-    # echo "INFO: $(date) Creating thumbnail"
-    # /usr/bin/convert thumbnail.jpg -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.png
-    # /usr/bin/convert -background ${BGCOLOR} -size 1920x1080 -fill "${COLOR}" -pointsize 72 -gravity center label:"$(echo ${BASENAME} | fold -sw 20)" thumbnail.jpg
+    RANDOMCHANNELINTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
 
     ## channel title
     CHANNELNAME="drawtext=textfile:'Kenny Ram Dash Cam':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
-    CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,20)'"
-    CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,20)'"
+    CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+    CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
 
     ## video title
     TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
     TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
-    TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,20)'"
-    TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,20)'"
+    TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+    TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
 
     LOGLEVEL="error"
 
-    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}" "${OUTPUTNAME}.mp4"
+    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}${SUBSCRIBE}" "${OUTPUTNAME}.mp4"
 
     echo "INFO: $(date) Creating thumbnail"
     /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
