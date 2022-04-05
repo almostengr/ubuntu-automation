@@ -199,21 +199,54 @@ do
 
     echo "INFO: Video Title: ${VIDEOTITLE}"
 
-    echo "INFO: $(date) Rendering video"
+    # render video without filters for archiving
 
-    COLOR="white"
-    BGCOLOR="blue"
+    if [ -f "dashcam.txt" ]; then
+        echo "INFO: Dash Cam channel video"
 
-    CONTAINSNIGHT=$(echo ${VIDEOTITLE} | grep -i night | wc -l)
+        COLOR="white"
+        BGCOLOR="black"
 
-    if [ ${CONTAINSNIGHT} -eq 1 ]; then
-        COLOR="orange"
+        CONTAINSNIGHT=$(echo ${VIDEOTITLE} | grep -i night | wc -l)
+
+        if [ ${CONTAINSNIGHT} -eq 1 ]; then
+            COLOR="orange"
+            BGCOLOR="black"
+        fi
+
+        BRANDINGTEXT="Kenny Ram Dash Cam"
+
+        RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
+        SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
+
+        RANDOMCHANNELINTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
+
+        ## channel title
+        CHANNELNAME="drawtext=textfile:'${BRANDINGTEXT}':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
+        CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+        CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+        ## video title
+        TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
+        TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
+        TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+        TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+    elif [ -f "services.txt" ]
+        echo "INFO: RHT Services channel video"
+
+        COLOR="white"
+        BGCOLOR="black"
+    else
+        echo "INFO: Unknown channel video"
+
+        COLOR="white"
         BGCOLOR="black"
     fi
 
-    FONTSIZE="h/35"
     DIMMEDBG="0.3"
 
+    echo "INFO: $(date) Rendering video"
 
     GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
 
@@ -235,25 +268,12 @@ do
         SUBTITLESFILE=", subtitles=subtitles.ass"
     fi
 
-    RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
-    SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
 
-    RANDOMCHANNELINTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
-
-    ## channel title
-    CHANNELNAME="drawtext=textfile:'Kenny Ram Dash Cam':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
-    CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
-    CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
-
-    ## video title
-    TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
-    TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
-    TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
-    TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
 
     LOGLEVEL="error"
 
     /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}${SUBSCRIBE}" "${OUTPUTNAME}.mp4"
+    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${VIDEOFILTER}" "${OUTPUTNAME}.mp4"
 
     # merge audio and video
 
