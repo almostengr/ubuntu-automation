@@ -144,12 +144,16 @@ checkForExistingProcess
 
 cd "${VIDEOSFOLDER}"
 
+checkDiskSpace
+
 # for VIDDIRECTORY in */
 for TARFILE in */
 do
     cd "${VIDEOSFOLDER}/incoming"
 
     checkDiskSpace
+    
+    setFfmpegValues
 
 #     if [[ "${VIDDIRECTORY}" == "upload/" || "${VIDDIRECTORY}" == "archive/" || "${VIDDIRECTORY}" == *"ignore"* ]]; then
 #         continue
