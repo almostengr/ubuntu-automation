@@ -8,7 +8,23 @@
 ## https://superuser.com/questions/939357/how-to-position-drawtext-text
 ###############################################
 
-DASHCAMFOLDER="/mnt/d74511ce-4722-471d-8d27-05013fd521b3/videos"
+## POSITIONS CONSTANTS
+PADDING="20"
+UPPERLEFT="x=${PADDING}:y=${PADDING}"
+UPPERCENTER="x=(w-text_w)/2:y=${PADDING}"
+UPPERRIGHT="x=w-tw-${PADDING}:y=${PADDING}"
+CENTERED="x=(w-text_w)/2:y=(h-text_h)/2"
+LOWERLEFT="x=${PADDING}:y=h-th-${PADDING}-30"
+LOWERCENTER="x=(w-text_w)/2:y=h-th-${PADDING}-30"
+LOWERRIGHT="x=w-tw-${PADDING}:y=h-th-${PADDING}-30"
+FONTSIZE="h/35"
+
+## DIRECTORIES CONSTANTS
+VIDEOSFOLDER="/mnt/d74511ce-4722-471d-8d27-05013fd521b3/videos"
+INCOMINGDIR="${VIDEOSFOLDER}/incoming"
+WORKINGDIR="${VIDEOSFOLDER}/working"
+ARCHIVEDIR="${VIDEOSFOLDER}/archive"
+UPLOADDIR="${VIDEOSFOLDER}/upload"
 
 function checkDiskSpace() {
     DISKSPACEUSED=$(df -h --output=pcent . | tail -1 | sed 's/[^0-9]*//g')
@@ -138,6 +154,19 @@ function checkForExistingProcess()
     fi
 }
 
+function create_directory {
+    if [[ ! -d ${1} ]]; then
+        echo "INFO: Creating directory ${1}"
+        mkdir ${1}
+    fi
+}
+
+function clean_working_directory {
+    echo "INFO: Cleaning working directory"
+    cd ${WORKINGDIR}
+    rm -rf *
+}
+
 ## main
 
 checkForExistingProcess
@@ -146,45 +175,46 @@ cd "${VIDEOSFOLDER}"
 
 checkDiskSpace
 
-## Constants
+cd ${INCOMINGDIR}
 
-## POSITIONS
-PADDING="20"
-UPPERLEFT="x=${PADDING}:y=${PADDING}"
-UPPERCENTER="x=(w-text_w)/2:y=${PADDING}"
-UPPERRIGHT="x=w-tw-${PADDING}:y=${PADDING}"
-CENTERED="x=(w-text_w)/2:y=(h-text_h)/2"
-LOWERLEFT="x=${PADDING}:y=h-th-${PADDING}-30"
-LOWERCENTER="x=(w-text_w)/2:y=h-th-${PADDING}-30"
-LOWERRIGHT="x=w-tw-${PADDING}:y=h-th-${PADDING}-30"
-FONTSIZE="h/35"
-
+create_directory ${WORKINGDIR}
+create_directory ${UPLOADDIR}
+create_directory ${ARCHIVEDIR}
 
 # for VIDDIRECTORY in */
-for TARFILE in */
+for TARFILENAME in $(ls -1 *tar *gz)
 do
     # cd "${VIDEOSFOLDER}/incoming"
 
     checkDiskSpace
     
-    
-
-#     if [[ "${VIDDIRECTORY}" == "upload/" || "${VIDDIRECTORY}" == "archive/" || "${VIDDIRECTORY}" == *"ignore"* ]]; then
-#         continue
-#     fi
-
-    cd "${VIDEOSFOLDER}/incoming"
-    echo "INFO: $(date) Rendering video files in $(pwd)"
+    cd "${INCOMINGDIR}"
 
     echo "INFO: $(date) Performing cleanup"
-    /bin/rm input.txt details.txt
+    #/bin/rm input.txt details.txt
+    clean_working_directory #/bin/rm "${WORKINGDIR}/*"
 
-    BASENAME=$(/usr/bin/basename "$(pwd)")
-    OUTPUTNAME="${BASENAME}"
-    VIDEOTITLE=$(cut -d ";" -f 1 <<< "${BASENAME}")
+    if [[ "${TARFILENAME}" == *".gz" ]]; then
+        echo "INFO: Uncompressing ${TARFILENAME}"
+        /bin/gunzip ${TARFILENAME}
+        TARFILENAME=$(echo ${TARFILENAME} | sed -e 's/.gz//g')
+        TARFILENAME="${INCOMINGDIR}/${TARFILENAME}"
+    fi
 
-    echo "INFO: $(date) Removing previous video files"
-    /bin/rm "${BASENAME}*"
+    echo "INFO: Untarring file ${TARFILENAME}"
+    /bin/tar -xf ${TARFILENAME} -C "${WORKINGDIR}"
+    echo "INFO: Done uncompressing file ${TARFILENAME}"
+
+
+    #BASENAME=$(/usr/bin/basename "$(pwd)")
+    #OUTPUTNAME="${BASENAME}"
+    #VIDEOTITLE=$(cut -d ";" -f 1 <<< "${BASENAME}")
+    VIDEOTITLE=$(cut -d ";" -f 1 <<< "${TARFILENAME}")
+
+    #echo "INFO: $(date) Removing previous video files"
+    #/bin/rm "${BASENAME}*"
+
+    cd ${WORKINGDIR}
 
     echo "INFO: $(date) Making the list of video files"
     for file in $(ls -1tr *mp4 *MP4 *MOV *mov) ;
@@ -263,7 +293,6 @@ do
         BGCOLOR="black"
     fi
 
-    DIMMEDBG="0.3"
 
     echo "INFO: $(date) Rendering video"
 
