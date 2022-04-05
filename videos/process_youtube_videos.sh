@@ -223,14 +223,33 @@ do
 
         ## channel title
         CHANNELNAME="drawtext=textfile:'${BRANDINGTEXT}':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
-        CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
-        CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+        
+        VIDEOFILTER+="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+        VIDEOFILTER+=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
 
         ## video title
         TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
         TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
-        TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
-        TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+        VIDEOFILTER+="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+        VIDEOFILTER+="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+        GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
+
+        if [ -f "destination.txt" ]; then
+            echo "INFO: $(date) Found drive details file"
+            VIDEOFILTER+=", drawtext=textfile=destination.txt:${GENERALDETAILS}:enable='between(t,5,12)'"
+        fi
+
+        if [ -f "majorroads.txt" ]; then
+            echo "INFO: $(date) Found major road details file"
+            VIDEOFILTER+=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
+        fi
+
+        if [ -f "subtitles.ass" ]; then
+            echo "INFO: $(date) Found subtitles file"
+            VIDEOFILTER+=", subtitles=subtitles.ass"
+        fi
 
     elif [ -f "services.txt" ]
         echo "INFO: RHT Services channel video"
@@ -248,31 +267,12 @@ do
 
     echo "INFO: $(date) Rendering video"
 
-    GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
-
-    DESTINATIONDETAILS=""
-    if [ -f "destination.txt" ]; then
-        echo "INFO: $(date) Found drive details file"
-        DESTINATIONDETAILS=", drawtext=textfile=destination.txt:${GENERALDETAILS}:enable='between(t,5,12)'"
-    fi
-
-    MAJORROADDETAILS=""
-    if [ -f "majorroads.txt" ]; then
-        echo "INFO: $(date) Found major road details file"
-        MAJORROADDETAILS=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
-    fi
-
-    SUBTITLESFILE=""
-    if [ -f "subtitles.ass" ]; then
-        echo "INFO: $(date) Found subtitles file"
-        SUBTITLESFILE=", subtitles=subtitles.ass"
-    fi
 
 
 
     LOGLEVEL="error"
 
-    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}${SUBSCRIBE}" "${OUTPUTNAME}.mp4"
+    #/usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}${SUBSCRIBE}" "${OUTPUTNAME}.mp4"
     /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${VIDEOFILTER}" "${OUTPUTNAME}.mp4"
 
     # merge audio and video
