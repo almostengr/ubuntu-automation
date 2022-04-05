@@ -1,14 +1,30 @@
 #!/bin/bash
 
 ###############################################
-## DESCRIPTION: Script used to create videos for the Robinson Handy and Technology Services YouTube channel
+## DESCRIPTION: Script used to create videos for YouTube and other social media outlets
 ## AUTHOR: Kenny Robinson, @almostengr
 ##
 ## REFERENCES:
 ## https://superuser.com/questions/939357/how-to-position-drawtext-text
 ###############################################
 
-DASHCAMFOLDER="/mnt/d74511ce-4722-471d-8d27-05013fd521b3/RHT Services"
+## POSITION CONSTANTS
+PADDING="20"
+UPPERLEFT="x=${PADDING}:y=${PADDING}"
+UPPERCENTER="x=(w-text_w)/2:y=${PADDING}"
+UPPERRIGHT="x=w-tw-${PADDING}:y=${PADDING}"
+CENTERED="x=(w-text_w)/2:y=(h-text_h)/2"
+LOWERLEFT="x=${PADDING}:y=h-th-${PADDING}-30"
+LOWERCENTER="x=(w-text_w)/2:y=h-th-${PADDING}-30"
+LOWERRIGHT="x=w-tw-${PADDING}:y=h-th-${PADDING}-30"
+FONTSIZE="h/35"
+
+## DIRECTORY CONSTANTS
+VIDEOSFOLDER="/mnt/d74511ce-4722-471d-8d27-05013fd521b3/videos"
+INCOMINGDIR="${VIDEOSFOLDER}/incoming"
+WORKINGDIR="${VIDEOSFOLDER}/working"
+ARCHIVEDIR="${VIDEOSFOLDER}/archive"
+UPLOADDIR="${VIDEOSFOLDER}/upload"
 
 function checkDiskSpace() {
     DISKSPACEUSED=$(df -h --output=pcent . | tail -1 | sed 's/[^0-9]*//g')
@@ -20,23 +36,73 @@ function checkDiskSpace() {
     fi
 }
 
-function renderVideo() {
+function checkForExistingProcess() 
+{
+    PSOUTPUT=$(ps -ef | grep -e "process_youtube_videos" | wc -l)
+    
+    if [ ${PSOUTPUT} -gt 0 ]; then
+        echo "Process is already running. Exiting"
+        exit 5
+    fi
+}
+
+## main
+
+checkForExistingProcess
+
+cd "${VIDEOSFOLDER}"
+
+checkDiskSpace
+
+mkdir -r ${WORKINGDIR}
+mkdir -r ${UPLOADDIR}
+mkdir -r ${ARCHIVEDIR}
+
+# for VIDDIRECTORY in */
+for TARFILENAME in $(ls -1 *tar *gz)
+do
+    checkDiskSpace
+    
+    cd "${INCOMINGDIR}"
+
     echo "INFO: $(date) Performing cleanup"
-    /bin/rm input.txt details.txt
+    /bin/rm -f "${WORKINGDIR}/*"
 
-    BASENAME=$(/usr/bin/basename "$(pwd)")
-    OUTPUTNAME="${BASENAME}"
-    VIDEOTITLE=$(cut -d ";" -f 1 <<< "${BASENAME}")
+    if [[ "${TARFILENAME}" == *".gz" ]]; then
+        echo "INFO: Uncompressing ${TARFILENAME}"
+        /bin/gunzip ${TARFILENAME}
+        TARFILENAME=$(echo ${TARFILENAME} | sed -e 's/.gz//g')
+        #TARFILENAME="${INCOMINGDIR}/${TARFILENAME}"
+    fi
 
-    echo "INFO: $(date) Removing previous video files"
-    /bin/rm "${BASENAME}*"
+    echo "INFO: Untarring file ${TARFILENAME}"
+    /bin/tar -xf ${TARFILENAME} -C "${WORKINGDIR}"
+    echo "INFO: Done uncompressing file ${TARFILENAME}"
+
+    #BASENAME=$(/usr/bin/basename "$(pwd)")
+    #OUTPUTNAME="${BASENAME}"
+    #VIDEOTITLE=$(cut -d ";" -f 1 <<< "${BASENAME}")
+    VIDEOTITLE=$(cut -d ";" -f 1 <<< "${TARFILENAME}")
+    VIDEOTITLE=$(echo ${VIDEOTITLE} | sed -e 's/.tar//g')
+
+    #echo "INFO: $(date) Removing previous video files"
+    #/bin/rm "${BASENAME}*"
+
+    cd ${WORKINGDIR}
 
     echo "INFO: $(date) Making the list of video files"
-    for file in $(ls -1tr *mp4 *MP4 *MOV *mov) ;
+
+    if [ -f "dashcam.txt" ]; then
+        DIRCONTENTSCOMMAND="ls -1tr *mp4 *MP4 *MOV *mov"
+    else
+        DIRCONTENTSCOMMAND="ls -1 *mp4 *MP4 *MOV *mov"
+    fi
+
+    for file in $(${DIRCONTENTSCOMMAND}) ;
     do
         echo "file ${file}" >> input.txt
-        echo "$(pwd)/${file}" >> details.txt
     done
+
 
     echo ${VIDEOTITLE} | fold -sw 60 > title.txt
     /bin/sed -e '/^$/d' title.txt > title2.txt
@@ -44,86 +110,95 @@ function renderVideo() {
 
     echo "INFO: Video Title: ${VIDEOTITLE}"
 
-    echo "INFO: $(date) Rendering video"
+    # render video without filters for archiving
 
-    COLOR="white"
-    BGCOLOR="blue"
+    if [ -f "dashcam.txt" ]; then
+        echo "INFO: Dash Cam channel video"
 
-    FONTSIZE="h/35"
-    DIMMEDBG="0.3"
+        COLOR="white"
 
-    ## POSITIONS
-    PADDING="20"
-    UPPERLEFT="x=${PADDING}:y=${PADDING}"
-    UPPERCENTER="x=(w-text_w)/2:y=${PADDING}"
-    UPPERRIGHT="x=w-tw-${PADDING}:y=${PADDING}"
-    CENTERED="x=(w-text_w)/2:y=(h-text_h)/2"
-    LOWERLEFT="x=${PADDING}:y=h-th-${PADDING}-30"
-    LOWERCENTER="x=(w-text_w)/2:y=h-th-${PADDING}-30"
-    LOWERRIGHT="x=w-tw-${PADDING}:y=h-th-${PADDING}-30"
+        CONTAINSNIGHT=$(echo ${VIDEOTITLE} | grep -i night | wc -l)
 
-    GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
+        if [ ${CONTAINSNIGHT} -eq 1 ]; then
+            COLOR="orange"
+        fi
 
-    SUBTITLESFILE=""
+        BRANDINGTEXT="Kenny Ram Dash Cam"
+
+        #RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
+        #SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
+
+        RANDOMCHANNELINTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
+
+        ## channel title
+        CHANNELNAME="drawtext=textfile:'${BRANDINGTEXT}':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
+        
+        VIDEOFILTER+="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+        VIDEOFILTER+=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+        ## video title
+        TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
+        TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
+
+        VIDEOFILTER+="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+        VIDEOFILTER+="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+        GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
+
+        if [ -f "destination.txt" ]; then
+            echo "INFO: $(date) Found drive details file"
+            VIDEOFILTER+=", drawtext=textfile=destination.txt:${GENERALDETAILS}:enable='between(t,5,12)'"
+        fi
+
+        if [ -f "majorroads.txt" ]; then
+            echo "INFO: $(date) Found major road details file"
+            VIDEOFILTER+=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
+        fi
+
+        ARCHIVEOUTPUTNAME="${VIDEOTITLE}.dash.mp4"
+
+    elif [ -f "services.txt" ]
+        echo "INFO: RHTS channel video"
+
+        VIDEOFILTER="drawtext=textfile:'Robinson Handy and Technology Services':fontcolor=white:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
+        ARCHIVEOUTPUTNAME="${VIDEOTITLE}.svcs.mp4"
+
+    else
+        echo "INFO: Unknown channel video"
+
+        VIDEOFILTER=""
+    fi
+    
+    FINALOUTPUTNAME=="${VIDEOTITLE}.mp4"
+
     if [ -f "subtitles.ass" ]; then
         echo "INFO: $(date) Found subtitles file"
-        SUBTITLESFILE=", subtitles=subtitles.ass"
+        VIDEOFILTER+=", subtitles=subtitles.ass"
     fi
 
-    RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
-    SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
+    echo "INFO: $(date) Rendering video"
 
-    RANDOMCHANNELINTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
 
-    ## channel title
-    CHANNELNAME="drawtext=textfile:'Robinson Handy and Technology Services':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black@{DIMMEDBG}"
-    # CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
-    # CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+    echo "INFO: $(date) Rendering video with filter overlays"
 
-    ## video title
-    # TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
-    # TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
-    # TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
-    # TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+    #/usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME1}${CHANNELNAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}${SUBSCRIBE}" "${OUTPUTNAME}.mp4"
+    /usr/bin/ffmpeg -hide_banner -loglevel error -y -f concat -i input.txt -an -vf "${VIDEOFILTER}" "${OUTPUTNAME}.mp4"
 
-    LOGLEVEL="error"
-
-    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNELNAME}${SUBTITLESFILE}" "${OUTPUTNAME}.mp4"
+    # merge audio and video
 
     echo "INFO: $(date) Creating thumbnail"
-    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
+    /usr/bin/ffmpeg -hide_banner -loglevel error -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
 
     echo "INFO: $(date) Removing temporary files"
-    /bin/rm input.txt details.txt
+    /bin/rm input.txt
 
     echo "INFO: $(date) Packaging video into archive"
     /bin/tar -czvf "${BASENAME}.tar.gz" "${OUTPUTNAME}.mp4" *.txt thumbnail.jpg
 
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
-    /bin/mv "${OUTPUTNAME}.mp4" "${DASHCAMFOLDER}/upload"
-    /bin/mv "thumbnail.jpg" "${DASHCAMFOLDER}/upload/${OUTPUTNAME}.jpg"
+    /bin/mv "${OUTPUTNAME}.mp4" "${UPLOADDIR}"
+    /bin/mv "thumbnail.jpg" "${UPLOADDIR}/${OUTPUTNAME}.jpg"
 
     echo "INFO: $(date) Moving archive to archive directory"
-    /bin/mv "${BASENAME}.tar.gz" "${DASHCAMFOLDER}/archive"
-}
-
-
-## main
-
-cd "${DASHCAMFOLDER}"
-
-for VIDDIRECTORY in */
-do
-    cd "${DASHCAMFOLDER}"
-
-    checkDiskSpace
-
-    if [[ "${VIDDIRECTORY}" == "upload/" || "${VIDDIRECTORY}" == "archive/" || "${VIDDIRECTORY}" == *"ignore"* ]]; then
-        continue
-    fi
-
-    cd "${VIDDIRECTORY}"
-    echo "INFO: $(date) Rendering video files in $(pwd)"
-
-    renderVideo
+    /bin/mv "${BASENAME}.tar.gz" "${ARCHIVEDIR}"
 done
