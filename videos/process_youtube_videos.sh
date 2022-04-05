@@ -130,7 +130,7 @@ function renderVideo() {
 
 function checkForExistingProcess() 
 {
-    PSOUTPUT=$(ps -ef | grep -e "process-video" | wc -l)
+    PSOUTPUT=$(ps -ef | grep -e "process_youtube_videos" | wc -l)
     
     if [ ${PSOUTPUT} -gt 0 ]; then
         echo "Process is already running. Exiting"
