@@ -22,7 +22,7 @@ function checkDiskSpace() {
 
 function renderVideo() {
     echo "INFO: $(date) Performing cleanup"
-    /bin/rm input.txt details.txt
+    /bin/rm input.txt details.txt title.srt
 
     BASENAME=$(/usr/bin/basename "$(pwd)")
     OUTPUTNAME="${BASENAME}"
@@ -111,8 +111,17 @@ function renderVideo() {
 
     # merge audio and video
 
+    echo "INFO: $(date) Creating subtitle file"
+    
+    echo "1"> title.srt
+    echo "00:00:00,000 --> 00:00:02,000" >> title.srt
+    echo "${VIDEOTITLE}" >> title.srt
+    echo "" >> title.srt
+
     echo "INFO: $(date) Creating thumbnail"
-    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
+    # /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -i "${OUTPUTNAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
+    /usr/bin/ffmpeg -y -f lavfi -i "color=BLACK:s=640x480:d=2" -vf "subtitles=title.srt:force_style='fontsize=50,PrimaryColour=&H00${COLOR}',drawtext=text='Kenny Ram Dash Cam':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=20" thumbnail.mp4
+    /usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -i "thumbnail.mp4" -ss 00:00:01.000 -frames:v 1 thumbnail.jpg
 
     echo "INFO: $(date) Removing temporary files"
     /bin/rm input.txt details.txt

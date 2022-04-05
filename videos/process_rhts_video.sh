@@ -8,7 +8,7 @@
 ## https://superuser.com/questions/939357/how-to-position-drawtext-text
 ###############################################
 
-VIDEOSFOLDER="/mnt/d74511ce-4722-471d-8d27-05013fd521b3/RHT Services"
+DASHCAMFOLDER="/mnt/d74511ce-4722-471d-8d27-05013fd521b3/RHT Services"
 
 function checkDiskSpace() {
     DISKSPACEUSED=$(df -h --output=pcent . | tail -1 | sed 's/[^0-9]*//g')
@@ -20,7 +20,7 @@ function checkDiskSpace() {
     fi
 }
 
-function renderAndArchiveVideo() {
+function renderVideo() {
     echo "INFO: $(date) Performing cleanup"
     /bin/rm input.txt details.txt
 
@@ -53,7 +53,7 @@ function renderAndArchiveVideo() {
     DIMMEDBG="0.3"
 
     ## POSITIONS
-    PADDING="30"
+    PADDING="20"
     UPPERLEFT="x=${PADDING}:y=${PADDING}"
     UPPERCENTER="x=(w-text_w)/2:y=${PADDING}"
     UPPERRIGHT="x=w-tw-${PADDING}:y=${PADDING}"
@@ -70,25 +70,21 @@ function renderAndArchiveVideo() {
         SUBTITLESFILE=", subtitles=subtitles.ass"
     fi
 
-    BRANDINGTEXT=""
-    DAYOFWEEK=$(date +%A)
-    if [ "${DAYOFWEEK}" == "Monday" ]; then
-        BRANDINGTEXT="facebook.com/rhtservicesllc"
-    elif [ "${DAYOFWEEK}" == "Wednesday" ]; then
-        BRANDINGTEXT="IG: @rhtservicesllc"
-    elif [ "${DAYOFWEEK}" == "Friday" ]; then
-        BRANDINGTEXT="rhtservices.net"
-    else 
-        BRANDINGTEXT="Robinson Handy and Technology Services"
-    fi
-
     RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
     SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
 
     RANDOMCHANNELINTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
 
     ## channel title
-    CHANNELNAME="drawtext=textfile:'${BRANDINGTEXT}':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=10:boxcolor=black@{DIMMEDBG}"
+    CHANNELNAME="drawtext=textfile:'Robinson Handy and Technology Services':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black@{DIMMEDBG}"
+    # CHANNELNAME1="${CHANNELNAME}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+    # CHANNELNAME2=", ${CHANNELNAME}@${DIMMEDBG}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
+
+    ## video title
+    # TITLETEXT=$(echo "${VIDEOTITLE}" | fold -sw 60)
+    # TITLE=", drawtext=textfile:'${VIDEOTITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
+    # TITLE3="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOMCHANNELINTERVAL})'"
+    # TITLE2="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOMCHANNELINTERVAL})'"
 
     LOGLEVEL="error"
 
@@ -104,30 +100,30 @@ function renderAndArchiveVideo() {
     /bin/tar -czvf "${BASENAME}.tar.gz" "${OUTPUTNAME}.mp4" *.txt thumbnail.jpg
 
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
-    /bin/mv "${OUTPUTNAME}.mp4" "${VIDEOSFOLDER}/upload"
-    /bin/mv "thumbnail.jpg" "${VIDEOSFOLDER}/upload/${OUTPUTNAME}.jpg"
+    /bin/mv "${OUTPUTNAME}.mp4" "${DASHCAMFOLDER}/upload"
+    /bin/mv "thumbnail.jpg" "${DASHCAMFOLDER}/upload/${OUTPUTNAME}.jpg"
 
     echo "INFO: $(date) Moving archive to archive directory"
-    /bin/mv "${BASENAME}.tar.gz" "${VIDEOSFOLDER}/archive"
+    /bin/mv "${BASENAME}.tar.gz" "${DASHCAMFOLDER}/archive"
 }
 
 
 ## main
 
-cd "${VIDEOSFOLDER}"
+cd "${DASHCAMFOLDER}"
 
-for DIRNAME in */
+for VIDDIRECTORY in */
 do
-    cd "${VIDEOSFOLDER}"
+    cd "${DASHCAMFOLDER}"
 
     checkDiskSpace
 
-    if [[ "${DIRNAME}" == "upload/" || "${DIRNAME}" == "archive/" || "${DIRNAME}" == *"ignore"* ]]; then
+    if [[ "${VIDDIRECTORY}" == "upload/" || "${VIDDIRECTORY}" == "archive/" || "${VIDDIRECTORY}" == *"ignore"* ]]; then
         continue
     fi
 
-    cd "${DIRNAME}"
+    cd "${VIDDIRECTORY}"
     echo "INFO: $(date) Rendering video files in $(pwd)"
 
-    renderAndArchiveVideo
+    renderVideo
 done
