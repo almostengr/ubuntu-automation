@@ -26,6 +26,7 @@ INCOMING_DIR="${VIDEOS_FOLDER}/incoming"
 WORKING_DIR="${VIDEOS_FOLDER}/working"
 ARCHIVE_DIR="${VIDEOS_FOLDER}/archive"
 UPLOAD_DIR="${VIDEOS_FOLDER}/upload"
+PROCESSED_DIR="${VIDEOS_FOLDER}/processed"
 
 function checkDiskSpace() {
     DISK_SPACE_USED=$(df -h --output=pcent . | tail -1 | sed 's/[^0-9]*//g')
@@ -41,9 +42,6 @@ function checkForExistingProcess()
 {
     PS_OUTPUT=$(ps -ef | grep -e "process_youtube_videos" | wc -l)
 
-    echo $(ps -ef | grep -e "process_youtube_videos")
-    echo ${PS_OUTPUT}
-    
     if [ ${PS_OUTPUT} -gt 3 ]; then
         echo "Process is already running. Exiting"
         exit 5
@@ -58,68 +56,63 @@ cd "${VIDEOS_FOLDER}"
 
 checkDiskSpace
 
-mkdir -p ${WORKING_DIR}
 mkdir -p ${UPLOAD_DIR}
 mkdir -p ${ARCHIVE_DIR}
+mkdir -p ${PROCESSED_DIR}
 
 cd "${INCOMING_DIR}"
 
-for TAR_FILENAME in *
+for TAR_FILENAME in *.tar*
 do
-    if [[ "${TAR_FILENAME}" != ""]]
-
+    if [[ "${TAR_FILENAME}" == "*.tar*" ]]; then
+        echo "INFO: $(date) Skipping ${TAR_FILENAME}"
+        continue
+    fi
+    
     checkDiskSpace
     
     cd "${INCOMING_DIR}"
 
     echo "INFO: $(date) Performing cleanup"
-    /bin/rm -f "${WORKING_DIR}/*"
+    /bin/rm -fr "${WORKING_DIR}"
+    mkdir -p ${WORKING_DIR}
 
     if [[ "${TAR_FILENAME}" == *".gz" ]]; then
-        echo "INFO: Uncompressing ${TAR_FILENAME}"
-        /bin/gunzip ${TAR_FILENAME}
-        TAR_FILENAME=$(echo ${TAR_FILENAME} | sed -e 's/.gz//g')
-        #TAR_FILENAME="${INCOMING_DIR}/${TAR_FILENAME}"
+        echo "INFO: $(date) Uncompressing ${TAR_FILENAME}"
+        /bin/gunzip "${TAR_FILENAME}"
+        TAR_FILENAME=$(echo "${TAR_FILENAME}" | sed -e 's/.gz//g')
     fi
 
-    echo "INFO: Untarring file ${TAR_FILENAME}"
-    /bin/tar -xf ${TAR_FILENAME} -C "${WORKING_DIR}"
+    echo "INFO: $(date) Untarring file ${TAR_FILENAME}"
+    /bin/tar -xf "${TAR_FILENAME}" -C "${WORKING_DIR}"
 
-    #BASENAME=$(/usr/bin/basename "$(pwd)")
-    #OUTPUTNAME="${BASENAME}"
-    #VIDEO_TITLE=$(cut -d ";" -f 1 <<< "${BASENAME}")
     VIDEO_TITLE=$(cut -d ";" -f 1 <<< "${TAR_FILENAME}")
     VIDEO_TITLE=$(echo ${VIDEO_TITLE} | sed -e 's/.tar//g')
-
-    #echo "INFO: $(date) Removing previous video files"
-    #/bin/rm "${BASENAME}*"
 
     cd ${WORKING_DIR}
 
     echo "INFO: $(date) Making the list of video files"
 
     if [ -f "dashcam.txt" ]; then
-        DIR_CONTENTS_CMD="ls -1tr *mp4 *MP4 *MOV *mov"
+        ls -1tr *mp4 *MP4 *MOV *mov > input.txt
     else
-        DIR_CONTENTS_CMD="ls -1 *mp4 *MP4 *MOV *mov"
+        ls -1 *mp4 *MP4 *MOV *mov > input.txt
     fi
 
-    for file in $(${DIR_CONTENTS_CMD}) ;
-    do
-        echo "file ${file}" >> input.txt
-    done
-
+    sed -i -e 's/^/file "/' input.txt # add prefix to each line
+    sed -i -e 's/$/"/' input.txt # add suffix to each line
+    sed -i -e "s/\"/'/g" input.txt
 
     echo ${VIDEO_TITLE} | fold -sw 60 > title.txt
     /bin/sed -e '/^$/d' title.txt > title2.txt
     mv title2.txt title.txt
 
-    echo "INFO: Video Title: ${VIDEO_TITLE}"
+    echo "INFO: $(date) Video Title: ${VIDEO_TITLE}"
 
     # render video without filters for archiving
 
     if [ -f "dashcam.txt" ]; then
-        echo "INFO: Dash Cam channel video"
+        echo "INFO: $(date) Dash Cam channel video"
 
         COLOR="white"
 
@@ -129,40 +122,37 @@ do
             COLOR="orange"
         fi
 
-        #RANDOMSUBINTERVAL=$(( ${RANDOM} % 999 + 1 )) ## random number between 1 and 999
-        #SUBSCRIBE=", drawtext=text='SUBSCRIBE!':fontcolor=white:fontsize=h/16:box=1:boxborderw=10:boxcolor=red:${LOWERRIGHT}:enable='lt(mod(t,${RANDOMSUBINTERVAL}),5)':${LOWERCENTER}"
-
         RANDOM_CHANNEL_INTERVAL=$(( ${RANDOM} % 20 + 5 )) ## random number between 5 and 20
 
         ## channel title
         CHANNEL_NAME="drawtext=textfile:'Kenny Ram Dash Cam':fontcolor=${COLOR}:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
         
-        VIDEOFILTER+="${CHANNEL_NAME}:enable='between(t,0,${RANDOM_CHANNEL_INTERVAL})'"
-        VIDEOFILTER+=", ${CHANNEL_NAME}@${DIMMEDBG}:enable='gt(t,${RANDOM_CHANNEL_INTERVAL})'"
+        VIDEO_FILTER+="${CHANNEL_NAME}:enable='between(t,0,${RANDOM_CHANNEL_INTERVAL})'"
+        VIDEO_FILTER+=", ${CHANNEL_NAME}@${DIMMEDBG}:enable='gt(t,${RANDOM_CHANNEL_INTERVAL})'"
 
         ## video title
         TITLETEXT=$(echo "${VIDEO_TITLE}" | fold -sw 60)
         TITLE=", drawtext=textfile:'${VIDEO_TITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
 
-        VIDEOFILTER+="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOM_CHANNEL_INTERVAL})'"
-        VIDEOFILTER+="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOM_CHANNEL_INTERVAL})'"
+        VIDEO_FILTER+="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOM_CHANNEL_INTERVAL})'"
+        VIDEO_FILTER+="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOM_CHANNEL_INTERVAL})'"
 
         GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
 
         if [ -f "destination.txt" ]; then
             echo "INFO: $(date) Found drive details file"
-            VIDEOFILTER+=", drawtext=textfile=destination.txt:${GENERALDETAILS}:enable='between(t,5,12)'"
+            VIDEO_FILTER+=", drawtext=textfile=destination.txt:${GENERALDETAILS}:enable='between(t,5,12)'"
         fi
 
         if [ -f "majorroads.txt" ]; then
             echo "INFO: $(date) Found major road details file"
-            VIDEOFILTER+=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
+            VIDEO_FILTER+=", drawtext=textfile=majorroads.txt:${GENERALDETAILS}:enable='between(t,12,20)'"
         fi
 
         ARCHIVE_FILE_NAME="${VIDEO_TITLE}.dash.mp4"
 
     elif [ -f "services.txt" ]; then
-        echo "INFO: RHTS channel video"
+        echo "INFO: $(date) RHTS channel video"
 
         CURRENTDAY=$(date +%A)
 
@@ -177,50 +167,54 @@ do
             BRANDING_TEXT="Robinson Handy and Technology Services"
         fi
 
-        VIDEOFILTER="drawtext=textfile:'${BRANDING_TEXT}':fontcolor=white:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
+        VIDEO_FILTER="drawtext=textfile:'${BRANDING_TEXT}':fontcolor=white:fontsize=${FONTSIZE}:${UPPERRIGHT}:box=1:boxborderw=7:boxcolor=black"
         ARCHIVE_FILE_NAME="${VIDEO_TITLE}.svcs.mp4"
 
     else
-        echo "INFO: Unknown channel video"
+        echo "INFO: $(date) Unknown channel video"
 
-        VIDEOFILTER=""
+        VIDEO_FILTER=""
+        ARCHIVE_FILE_NAME="${VIDEO_TITLE}.unknown.mp4"
     fi
     
-    FINAL_OUTPUT_NAME=="${VIDEO_TITLE}.mp4"
+    FINAL_OUTPUT_NAME="${VIDEO_TITLE}.mp4"
 
     if [ -f "subtitles.ass" ]; then
         echo "INFO: $(date) Found subtitles file"
-        VIDEOFILTER+=", subtitles=subtitles.ass"
+        VIDEO_FILTER+=", subtitles=subtitles.ass"
     fi
 
     echo "INFO: $(date) Rendering video for archive"
 
-    /usr/bin/ffmpeg -hide_banner -loglevel error -y -f concat -i input.txt "${ARCHIVE_FILE_NAME}"
+    /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt "${ARCHIVE_FILE_NAME}"
 
     echo "INFO: $(date) Rendering video with filter overlays"
 
-    #/usr/bin/ffmpeg -hide_banner -loglevel ${LOGLEVEL} -y -f concat -i input.txt -an -vf "${CHANNEL_NAME1}${CHANNEL_NAME2}${TITLE2}${TITLE3}${DESTINATIONDETAILS}${MAJORROADDETAILS}${SUBTITLESFILE}${SUBSCRIBE}" "${OUTPUTNAME}.mp4"
-    /usr/bin/ffmpeg -hide_banner -loglevel error -y -f concat -i input.txt -an -vf "${VIDEOFILTER}" "${FINAL_OUTPUT_NAME}"
+    if [[ "${VIDEO_FILTER}" == "" ]]; then
+        /bin/cp -p "${ARCHIVE_FILE_NAME}" "${FINAL_OUTPUT_NAME}"
+    else
+        /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt -an -vf "${VIDEO_FILTER}" "${FINAL_OUTPUT_NAME}"
+    fi
 
     echo "INFO: $(date) Creating thumbnail"
-    /usr/bin/ffmpeg -hide_banner -loglevel error -i "${FINAL_OUTPUT_NAME}.mp4" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
+    /usr/bin/ffmpeg -hide_banner -loglevel error -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
 
-    echo "INFO: $(date) Packaging video into archive"
-
-    echo "INFO: Compressing tar file for archiving"
+    echo "INFO: $(date) Compressing tar file for archiving"
     TAR_ARCHIVE_FILE_NAME="$(echo ${ARCHIVE_FILE_NAME} | sed 's/\.mp4//g').$(date +%Y%m%d).tar.gz"
+    /bin/rm input.txt
     /bin/tar -czvf "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_FILE_NAME}" *.txt thumbnail.jpg
-    # /bin/tar -czvf "${VIDEO_TITLE}.$(date +%Y%m%d).tar.gz" "${ARCHIVE_FILE_NAME}" *.txt thumbnail.jpg
 
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
     /bin/mv "${FINAL_OUTPUT_NAME}" "${UPLOAD_DIR}"
     /bin/mv "thumbnail.jpg" "${UPLOAD_DIR}/${FINAL_OUTPUT_NAME}.jpg"
 
-
     echo "INFO: $(date) Moving archive to archive directory"
-    # /bin/mv "${TAR_FILENAME}" "${ARCHIVE_DIR}"
     /bin/mv "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_DIR}"
 
+    echo "INFO: $(date) Compressing and moving input tar file"
     cd "${INCOMING_DIR}"
-    # /bin/rm ${TAR_FILENAME}
+    /bin/gzip "${TAR_FILENAME}"
+    /bin/mv "${TAR_FILENAME}".gz "${PROCESSED_DIR}"
+
+    /bin/rm -fr "${WORKING_DIR}"
 done
