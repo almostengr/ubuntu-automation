@@ -54,8 +54,6 @@ checkForExistingProcess
 
 cd "${VIDEOS_FOLDER}"
 
-checkDiskSpace
-
 mkdir -p ${UPLOAD_DIR}
 mkdir -p ${ARCHIVE_DIR}
 mkdir -p ${PROCESSED_DIR}
@@ -63,10 +61,10 @@ mkdir -p ${PROCESSED_DIR}
 echo "INFO: $(date) Removing old files in processing directory"
 
 DELAY=60
-
 /usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec ls -la {} \; # list files to be removed
-
 /usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec rm {} \; 	# remove the files
+
+checkDiskSpace
 
 cd "${INCOMING_DIR}"
 
