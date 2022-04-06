@@ -107,9 +107,13 @@ do
         ls -1 *mp4 *MP4 *mkv > input.txt
     fi
 
-    /bin/sed -i -e 's/^/file "/' input.txt # add prefix to each line
-    /bin/sed -i -e 's/$/"/' input.txt # add suffix to each line
-    /bin/sed -i -e "s/\"/'/g" input.txt # replace double quotes with single quotes
+    INPUT_FILE_LINES=$(grep -e "\." input.txt | wc -l)
+    
+    if [ ${INPUT_FILE_LINES} -gt 1 ]; then
+        /bin/sed -i -e 's/^/file "/' input.txt # add prefix to each line
+        /bin/sed -i -e 's/$/"/' input.txt # add suffix to each line
+        /bin/sed -i -e "s/\"/'/g" input.txt # replace double quotes with single quotes
+    fi
 
     echo ${VIDEO_TITLE} | fold -sw 60 > title.txt
     /bin/sed -e '/^$/d' title.txt > title2.txt
@@ -192,8 +196,15 @@ do
     fi
 
     echo "INFO: $(date) Rendering video for archive"
+    
 
-    /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt "${ARCHIVE_FILE_NAME}"
+    if [ ${INPUT_FILE_LINES} -eq 1 ]; then
+        INPUT_FILE_NAME=$(cat input.txt)
+        
+        /bin/mv "${INPUT_FILE_NAME}" "${ARCHIVE_FILE_NAME}"
+    else
+        /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt "${ARCHIVE_FILE_NAME}"
+    fi
 
     echo "INFO: $(date) Rendering video with filter overlays"
 
