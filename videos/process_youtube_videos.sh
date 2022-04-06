@@ -135,7 +135,7 @@ do
         TITLE=", drawtext=textfile:'${VIDEO_TITLE}':fontcolor=${COLOR}:box=1:boxborderw=7:boxcolor=black"
 
         VIDEO_FILTER+="${TITLE}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='between(t,0,${RANDOM_CHANNEL_INTERVAL})'"
-        VIDEO_FILTER+="${TITLE}@${DIMMEDBG}:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOM_CHANNEL_INTERVAL})'"
+        VIDEO_FILTER+="${TITLE}@0.3:fontsize=${FONTSIZE}:${UPPERLEFT}:enable='gt(t,${RANDOM_CHANNEL_INTERVAL})'"
 
         GENERALDETAILS="fontcolor=white:fontsize=${FONTSIZE}:box=1:boxborderw=7:boxcolor=green:${LOWERCENTER}"
 
