@@ -60,12 +60,20 @@ mkdir -p ${UPLOAD_DIR}
 mkdir -p ${ARCHIVE_DIR}
 mkdir -p ${PROCESSED_DIR}
 
+echo "INFO: $(date) Removing old files in processing directory"
+
+DELAY=60
+
+/usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec ls -la {} \; # list files to be removed
+
+/usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec rm {} \; 	# remove the files
+
 cd "${INCOMING_DIR}"
 
 for TAR_FILENAME in *.tar*
 do
     if [[ "${TAR_FILENAME}" == "*.tar*" ]]; then
-        echo "INFO: $(date) Skipping ${TAR_FILENAME}"
+        echo "INFO: $(date) Skipping ${TAR_FILENAME}" #prevent errors when no archives are present
         continue
     fi
     
@@ -94,18 +102,18 @@ do
     echo "INFO: $(date) Making the list of video files"
 
     if [ -f "dashcam.txt" ]; then
-        ls -1tr *mp4 *MP4 *MOV *mov > input.txt
+        ls -1tr *mp4 *MP4 *MOV > input.txt
     else
-        ls -1 *mp4 *MP4 *MOV *mov > input.txt
+        ls -1 *mp4 *MP4 *mkv > input.txt
     fi
 
-    sed -i -e 's/^/file "/' input.txt # add prefix to each line
-    sed -i -e 's/$/"/' input.txt # add suffix to each line
-    sed -i -e "s/\"/'/g" input.txt
+    /bin/sed -i -e 's/^/file "/' input.txt # add prefix to each line
+    /bin/sed -i -e 's/$/"/' input.txt # add suffix to each line
+    /bin/sed -i -e "s/\"/'/g" input.txt # replace double quotes with single quotes
 
     echo ${VIDEO_TITLE} | fold -sw 60 > title.txt
     /bin/sed -e '/^$/d' title.txt > title2.txt
-    mv title2.txt title.txt
+    /bin/mv title2.txt title.txt
 
     echo "INFO: $(date) Video Title: ${VIDEO_TITLE}"
 
@@ -114,10 +122,9 @@ do
     if [ -f "dashcam.txt" ]; then
         echo "INFO: $(date) Dash Cam channel video"
 
-        COLOR="white"
-
         CONTAINS_NIGHT=$(echo ${VIDEO_TITLE} | grep -i night | wc -l)
 
+        COLOR="white"
         if [ ${CONTAINS_NIGHT} -eq 1 ]; then
             COLOR="orange"
         fi
@@ -197,18 +204,18 @@ do
     fi
 
     echo "INFO: $(date) Creating thumbnail"
-    /usr/bin/ffmpeg -hide_banner -loglevel error -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 thumbnail.jpg
+    THUMBNAIL_FILE_NAME="${VIDEO_TITLE}.jpg"
+    /usr/bin/ffmpeg -hide_banner -loglevel error -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 "${THUMBNAIL_FILE_NAME}"
 
     echo "INFO: $(date) Compressing tar file for archiving"
     TAR_ARCHIVE_FILE_NAME="$(echo ${ARCHIVE_FILE_NAME} | sed 's/\.mp4//g').$(date +%Y%m%d).tar.gz"
     /bin/rm input.txt
-    /bin/tar -czvf "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_FILE_NAME}" *.txt thumbnail.jpg
+    /bin/tar -czvf "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_FILE_NAME}" "${THUMBNAIL_FILE_NAME}" *.txt 
 
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
-    /bin/mv "${FINAL_OUTPUT_NAME}" "${UPLOAD_DIR}"
-    /bin/mv "thumbnail.jpg" "${UPLOAD_DIR}/${FINAL_OUTPUT_NAME}.jpg"
+    /bin/mv "${FINAL_OUTPUT_NAME}" "${THUMBNAIL_FILE_NAME}" "${UPLOAD_DIR}"
 
-    echo "INFO: $(date) Moving archive to archive directory"
+    echo "INFO: $(date) Moving tar archive to archive directory"
     /bin/mv "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_DIR}"
 
     echo "INFO: $(date) Compressing and moving input tar file"
@@ -218,3 +225,5 @@ do
 
     /bin/rm -fr "${WORKING_DIR}"
 done
+
+
