@@ -92,7 +92,8 @@ do
     echo "INFO: $(date) Untarring file ${TAR_FILENAME}"
     /bin/tar -xf "${TAR_FILENAME}" -C "${WORKING_DIR}"
 
-    VIDEO_TITLE=$(cut -d ";" -f 1 <<< "${TAR_FILENAME}")
+    VIDEO_TITLE=$(awk -F "." '{print $1}' <<< "${TAR_FILENAME}")
+    VIDEO_TITLE=$(cut -d ";" -f 1 <<< "${VIDEO_TITLE}")
     VIDEO_TITLE=$(echo ${VIDEO_TITLE} | sed -e 's/.tar//g')
 
     cd ${WORKING_DIR}
@@ -124,10 +125,10 @@ do
     if [ -f "dashcam.txt" ]; then
         echo "INFO: $(date) Dash Cam channel video"
 
-        CONTAINS_NIGHT=$(echo ${VIDEO_TITLE} | grep -i night | wc -l)
+        CONTAINS_NIGHT=$(echo "${VIDEO_TITLE}" | grep -i night | wc -l)
 
         COLOR="white"
-        if [ ${CONTAINS_NIGHT} -eq 1 ]; then
+        if [ ${CONTAINS_NIGHT} -gt 0 ]; then
             COLOR="orange"
         fi
 
@@ -214,10 +215,10 @@ do
 
     echo "INFO: $(date) Creating thumbnail"
     THUMBNAIL_FILE_NAME="${VIDEO_TITLE}.jpg"
-    /usr/bin/ffmpeg -hide_banner -loglevel error -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 "${THUMBNAIL_FILE_NAME}"
+    /usr/bin/ffmpeg -hide_banner -loglevel error -y -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 "${THUMBNAIL_FILE_NAME}"
 
     echo "INFO: $(date) Compressing tar file for archiving"
-    TAR_ARCHIVE_FILE_NAME="$(echo ${ARCHIVE_FILE_NAME} | sed 's/\.mp4//g').$(date +%Y%m%d).tar.gz"
+    TAR_ARCHIVE_FILE_NAME="$(echo ${ARCHIVE_FILE_NAME} | sed 's/\.mp4//g').tar.gz"
     /bin/rm input.txt
     /bin/tar -czvf "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_FILE_NAME}" "${THUMBNAIL_FILE_NAME}" *.txt 
 

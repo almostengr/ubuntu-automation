@@ -10,9 +10,7 @@
 
 /bin/echo "Transferring files"
 
-/usr/bin/scp -p /home/almostengineer/Videos/dashcamvideos/*tar.gz iamadmin@media://mnt/ramfiles/dashcam/incoming
-
-/usr/bin/scp -p /home/almostengineer/Videos/aevideos/*tar.gz iamadmin@media://mnt/ramfiles/almostengineer/incoming
+/usr/bin/scp -p /home/almostengineer/Videos/dashcamvideos/*tar.gz /home/almostengineer/Videos/aevideos/*tar.gz  iamadmin@media://mnt/ramfiles/youtube/incoming
 
 /bin/date 
 
