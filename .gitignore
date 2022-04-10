@@ -1,2 +1,12 @@
 *.log
 *config.sh
+*.srt
+*.tar*
+*title.txt
+*input.txt
+*dashcam.txt
+*services.txt
+*destination.txt
+*majorroads.txt
+*subtitles.ass
+*jpg
