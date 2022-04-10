@@ -7,23 +7,29 @@ OUTGOING_DIR="${PARENT_DIR}/outgoing"
 
 cd "${PARENT_DIR}"
 
-# move folder contents in to tar files
+# move folder contents into tar files
 
 for ${directory} in *20*/
 do
+    /bin/echo "INFO: $(date) Processing ${directory}"
     cd "${directory}"
 
     /usr/bin/touch "dashcam.txt"
 
     /bin/tar -cf "${directory}.tar" *
 
-    /usr/bin/xz -z -e -T 2 -v "${directory}.tar"
+    /usr/bin/xz -z -e -T 2 -v "${directory}.tar.xz"
+
+    /bin/mv *tar* "${OUTGOING_DIR}"
 
     cd "${PARENT_DIR}"
+
+    TAR_PRESENT=$(/bin/ls -1 "${OUTGOING_DIR}/${directory}*" | wc -l)
+
+    if [ ${TAR_PRESENT} -eq 1 ]; then
+        /bin/echo "INFO: $(date) ${directory} tar file is present. Removing origial files"
+        # /bin/rm -rf "${directory}"
+    else
+        /bin/echo "ERROR: $(date) ${directory} tar file is not present"
+    fi
 done
-
-# move compressed files to directory for transfer
-
-cd "${PARENT_DIR}"
-
-/bin/mv *tar.xz "${OUTGOING_DIR}"
