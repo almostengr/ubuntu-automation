@@ -22,7 +22,7 @@ do
     if [[ "${filename}" == *"mov" ]]; then
         OUTPUTFILE=output.mov
     elif [[ "${filename}" == *"mkv" ]]; then
-	OUTPUTFILE=output.mkv
+	    OUTPUTFILE=output.mkv
     else
         OUTPUTFILE=output.mp4
     fi
@@ -30,7 +30,8 @@ done
 
 echo "Rendering video"
 
-/usr/bin/ffmpeg -f concat -i list.txt -c copy ${OUTPUTFILE}
+# /usr/bin/ffmpeg -f concat -i list.txt -c copy ${OUTPUTFILE}
+/usr/bin/ffmpeg -hide_banner -y -loglevel error -f concat -i list.txt -an "${OUTPUTFILE}"
 
 echo "Done rendering video"
 
