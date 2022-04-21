@@ -216,6 +216,10 @@ do
     echo "INFO: $(date) Creating thumbnail"
     THUMBNAIL_FILE_NAME="${VIDEO_TITLE}.jpg"
     /usr/bin/ffmpeg -hide_banner -loglevel error -y -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 "${THUMBNAIL_FILE_NAME}"
+    
+    DONE_FILE_NAME="${VIDEO_TITLE}.done"
+    
+    touch "${DONE_FILE_NAME}"
 
     echo "INFO: $(date) Compressing tar file for archiving"
     TAR_ARCHIVE_FILE_NAME="$(echo ${ARCHIVE_FILE_NAME} | sed 's/\.mp4//g').tar.gz"
@@ -223,7 +227,7 @@ do
     /bin/tar -czvf "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_FILE_NAME}" "${THUMBNAIL_FILE_NAME}" *.txt 
 
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
-    /bin/mv "${FINAL_OUTPUT_NAME}" "${THUMBNAIL_FILE_NAME}" "${UPLOAD_DIR}"
+    /bin/mv "${FINAL_OUTPUT_NAME}" "${THUMBNAIL_FILE_NAME}" "${DONE_FILE_NAME}" "${UPLOAD_DIR}"
 
     echo "INFO: $(date) Moving tar archive to archive directory"
     /bin/mv "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_DIR}"
