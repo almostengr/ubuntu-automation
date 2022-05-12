@@ -26,7 +26,7 @@ INCOMING_DIR="${VIDEOS_FOLDER}/incoming"
 WORKING_DIR="${VIDEOS_FOLDER}/working"
 ARCHIVE_DIR="${VIDEOS_FOLDER}/archive"
 UPLOAD_DIR="${VIDEOS_FOLDER}/upload"
-PROCESSED_DIR="${VIDEOS_FOLDER}/processed"
+# PROCESSED_DIR="${VIDEOS_FOLDER}/processed"
 
 function checkDiskSpace() {
     DISK_SPACE_USED=$(df -h --output=pcent . | tail -1 | sed 's/[^0-9]*//g')
@@ -56,13 +56,13 @@ cd "${VIDEOS_FOLDER}"
 
 mkdir -p ${UPLOAD_DIR}
 mkdir -p ${ARCHIVE_DIR}
-mkdir -p ${PROCESSED_DIR}
+# mkdir -p ${PROCESSED_DIR}
 
-echo "INFO: $(date) Removing old files in processing directory"
+# echo "INFO: $(date) Removing old files in processing directory"
 
-DELAY=60
-/usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec ls -la {} \; # list files to be removed
-/usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec rm {} \; 	# remove the files
+# DELAY=60
+# /usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec ls -la {} \; # list files to be removed
+# /usr/bin/find "${PROCESSED_DIR}/*" -type f -mtime +${DELAY} -exec rm {} \; 	# remove the files
 
 checkDiskSpace
 
@@ -194,21 +194,11 @@ do
         VIDEO_FILTER+=", subtitles=subtitles.ass"
     fi
 
-    echo "INFO: $(date) Rendering video for archive"
-    
-
-    if [ ${INPUT_FILE_LINES} -eq 1 ]; then
-        INPUT_FILE_NAME=$(cat input.txt)
-        
-        /bin/mv "${INPUT_FILE_NAME}" "${ARCHIVE_FILE_NAME}"
-    else
-        /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt "${ARCHIVE_FILE_NAME}"
-    fi
-
     echo "INFO: $(date) Rendering video with filter overlays"
 
     if [[ "${VIDEO_FILTER}" == "" ]]; then
-        /bin/cp -p "${ARCHIVE_FILE_NAME}" "${FINAL_OUTPUT_NAME}"
+        # /bin/cp -p "${ARCHIVE_FILE_NAME}" "${FINAL_OUTPUT_NAME}"
+        /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt -an "${FINAL_OUTPUT_NAME}"
     else
         /usr/bin/ffmpeg -hide_banner -safe 0 -loglevel error -y -f concat -i input.txt -an -vf "${VIDEO_FILTER}" "${FINAL_OUTPUT_NAME}"
     fi
@@ -217,21 +207,13 @@ do
     THUMBNAIL_FILE_NAME="${VIDEO_TITLE}.jpg"
     /usr/bin/ffmpeg -hide_banner -loglevel error -y -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 "${THUMBNAIL_FILE_NAME}"
 
-    echo "INFO: $(date) Compressing tar file for archiving"
-    TAR_ARCHIVE_FILE_NAME="$(echo ${ARCHIVE_FILE_NAME} | sed 's/\.mp4//g').tar.gz"
-    /bin/rm input.txt
-    /bin/tar -czvf "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_FILE_NAME}" "${THUMBNAIL_FILE_NAME}" *.txt 
-
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
     /bin/mv "${FINAL_OUTPUT_NAME}" "${THUMBNAIL_FILE_NAME}" "${UPLOAD_DIR}"
 
-    echo "INFO: $(date) Moving tar archive to archive directory"
-    /bin/mv "${TAR_ARCHIVE_FILE_NAME}" "${ARCHIVE_DIR}"
-
     echo "INFO: $(date) Compressing and moving input tar file"
     cd "${INCOMING_DIR}"
-    /bin/gzip "${TAR_FILENAME}"
-    /bin/mv "${TAR_FILENAME}".gz "${PROCESSED_DIR}"
+    /usr/bin/xz -z "${TAR_FILENAME}" --threads=0
+    /bin/mv "${TAR_FILENAME}.xz" "${ARCHIVE_DIR}"
 
     /bin/rm -fr "${WORKING_DIR}"
 done
