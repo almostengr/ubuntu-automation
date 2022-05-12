@@ -206,9 +206,13 @@ do
     echo "INFO: $(date) Creating thumbnail"
     THUMBNAIL_FILE_NAME="${VIDEO_TITLE}.jpg"
     /usr/bin/ffmpeg -hide_banner -loglevel error -y -i "${FINAL_OUTPUT_NAME}" -ss 00:00:02.000 -frames:v 1 "${THUMBNAIL_FILE_NAME}"
+    
+    DONE_FILE_NAME="${VIDEO_TITLE}.done"
+    
+    touch "${DONE_FILE_NAME}"
 
     echo "INFO: $(date) Moving video and thumbnail to upload directory"
-    /bin/mv "${FINAL_OUTPUT_NAME}" "${THUMBNAIL_FILE_NAME}" "${UPLOAD_DIR}"
+    /bin/mv "${FINAL_OUTPUT_NAME}" "${THUMBNAIL_FILE_NAME}" "${DONE_FILE_NAME}" "${UPLOAD_DIR}"
 
     echo "INFO: $(date) Compressing and moving input tar file"
     cd "${INCOMING_DIR}"
