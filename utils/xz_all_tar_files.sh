@@ -2,6 +2,8 @@
 
 $(date)
 
+cd /home/iamadmin/Videos/compressed
+
 for file in *
 do
 	echo "${file}"
