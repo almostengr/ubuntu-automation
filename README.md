@@ -1,5 +1,12 @@
 # Ubuntu Automation and Scripts
 
+## Repository Archived
+
+This repository has been archived. Updates to the scripts in this repository will be available
+in the Technology section of
+<a href="https://thealmostengineer.com target="_blank">thealmostengineer.com</a>.  You may use
+the search functionality to find the scripts that you are looking for.
+
 ## About 
 
 Scripts that can be used to automate repetitive tasks when setting up servers, 
